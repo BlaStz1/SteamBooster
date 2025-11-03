@@ -326,7 +326,7 @@ async stop(removeAccount = false) {
     } catch (error) {
       logger.error(`${this.getUsername()} | ${error}`);
       this.setError(STEAM_BOT_STATUS.RESTART_ERROR);
-      this.replyDiscord('Error while restarting!');
+      this.logMessage('Error while restarting');
     }
   }
 
