@@ -684,24 +684,6 @@ function initializeWebsite() {
   const featureCards = document.querySelectorAll(".feature-card");
   featureCards.forEach((card) => card.classList.add("shine-effect"));
 }
-async function updateGitHubStats() {
-  try {
-    const response = await fetch(
-      "",
-    );
-    const data = await response.json();
-
-    document.getElementById("stars-count").textContent =
-      `${data.stargazers_count} Stars`;
-    document.getElementById("forks-count").textContent =
-      `${data.forks_count} Forks`;
-  } catch (error) {
-    console.error("Error fetching GitHub stats:", error);
-  }
-}
-
-updateGitHubStats();
-setInterval(updateGitHubStats, 300000);
 
 function scrollToTop() {
   window.scrollTo({
