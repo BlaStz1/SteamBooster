@@ -170,17 +170,17 @@ class SteamBot {
     } catch (error) {
       switch (error.eresult) {
         case EResult.InvalidLoginAuthCode:
-          this.replyDiscord('Invalid Steam Guard Email code!');
+          this.logMessage('Invalid Steam Guard Email code');
           return;
         case EResult.TwoFactorCodeMismatch:
-          this.replyDiscord('Invalid Steam Guard Mobile Authenticator code!');
+          this.logMessage('Invalid Steam Guard Mobile Authenticator code');
           if (this.getSharedSecret()) {
-            this.replyDiscord('Either your Steam Guard Mobile code is wrong or your shared secret is invalid!');
+            this.logMessage('Steam Guard Mobile code is wrong or shared secret is invalid');
           }
           return;
         default:
           logger.error(`${this.getUsername()} | Unhandled error while authenticating Steam Guard: ${error?.message} (${error?.eresult}) - ${error}`);
-          this.replyDiscord(`ERROR: Unhandled error while authenticating Steam Guard: ${error?.message} (${error?.eresult})!`);
+          this.logMessage(`Unhandled error while authenticating Steam Guard: ${error?.message} (${error?.eresult})`);
           break;
       }
       throw error;
