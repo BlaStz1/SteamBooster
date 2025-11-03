@@ -384,7 +384,7 @@ async #flushIdle() {
 
   onPlayingState(blocked, playingApp) {
     if (blocked) {
-      this.replyDiscord(`Game is being played in another session (AppID: ${playingApp})`);
+      this.logMessage(`Game is being played in another session (AppID: ${playingApp})`);
       this.setStatus(STEAM_BOT_STATUS.BlockedFromPlayingGames(playingApp));
     }
   }
