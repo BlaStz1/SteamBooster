@@ -406,30 +406,30 @@ async #flushIdle() {
           await this.#flushIdle();
           clearInterval(this.#idleTimer);
           this.setError(STEAM_BOT_STATUS.INVALID_PASSWORD);
-          this.replyDiscord('ERROR: Invalid password!');
+          this.logMessage('Invalid password');
           this.stop();
-          this.replyDiscord('Boost stopped! WARNING: Check your password.');
+          this.logMessage('Boost stopped - check your password');
           return;
 
         case SteamUser.EResult.LoggedInElsewhere:
           await this.#flushIdle();
           clearInterval(this.#idleTimer);
           this.setError(STEAM_BOT_STATUS.ERROR_LOGGED_IN_ELSEWHERE);
-          this.replyDiscord('ERROR: Logged in elsewhere!');
+          this.logMessage('Logged in elsewhere');
           break;
 
         case SteamUser.EResult.AccountLogonDenied:
           await this.#flushIdle();
           clearInterval(this.#idleTimer);
           this.setError(STEAM_BOT_STATUS.STEAM_GUARD_REQUIRED);
-          this.replyDiscord('ERROR: Steam Guard required!');
+          this.logMessage('Steam Guard required');
           break;
 
         case SteamUser.EResult.AccountHasBeenDeleted:
           await this.#flushIdle();
           clearInterval(this.#idleTimer);
           this.setError(STEAM_BOT_STATUS.ERROR_ACCOUNT_DELETED);
-          this.replyDiscord('ERROR: Account has been deleted!');
+          this.logMessage('Account has been deleted');
           this.stop();
           return;
 
@@ -437,7 +437,7 @@ async #flushIdle() {
           await this.#flushIdle();
           clearInterval(this.#idleTimer);
           this.setError(STEAM_BOT_STATUS.ERROR_LOGON_SESSION_REPLACED);
-          this.replyDiscord('ERROR: Logon session replaced! Stopping.');
+          this.logMessage('Logon session replaced - stopping');
           this.stop();
           break;
 
@@ -447,20 +447,14 @@ async #flushIdle() {
           this.setRefreshToken('');
           this.setError(STEAM_BOT_STATUS.Error(error));
           logger.warn(`${this.getUsername()} | Unhandled error event: ${error?.message} (${error?.eresult})`);
-          this.replyDiscord(`ERROR: Unhandled error event, please restart your bot: ${error?.message} (${error?.eresult})`);
+          this.logMessage(`Unhandled error event: ${error?.message} (${error?.eresult})`);
           this.stop();
           break;
       }
-
-      // this.replyDiscord('Reconnecting in 40 minutes...');
-      // setTimeout(() => {
-      //   this.replyDiscord('Reconnecting...');
-      //   this.start(true);
-      // }, 40 * 60 * 1000);
     } catch (err) {
       logger.error(`${this.getUsername()} | ${err}`);
       this.setError(STEAM_BOT_STATUS.Error(err));
-      this.replyDiscord('Error!');
+      this.logMessage('Error occurred');
     }
   }
 
