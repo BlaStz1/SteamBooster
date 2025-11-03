@@ -281,7 +281,7 @@ class SteamBot {
     } catch (error) {
       logger.error(`${this.getUsername()} | ${error}`);
       this.setError(STEAM_BOT_STATUS.LOGIN_ERROR);
-      this.replyDiscord('Error while starting bot!');
+      this.logMessage('Error while starting bot');
     }
   }
 
