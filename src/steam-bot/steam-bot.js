@@ -23,7 +23,6 @@ class SteamBot {
   #loginTimeout;
   #isRunning;
   #steamGuardAuth;
-  #discordOwnerId;
   #username;
   #password;
   #sharedSecret;
@@ -34,15 +33,12 @@ class SteamBot {
   #toBeRemoved;
   #toBeRestarted;
 
-  #discordClient;
-
-  constructor(account, discordClient) {
+  constructor(account) {
     this.#error = null;
     this.#status = STEAM_BOT_STATUS.IDLE;
     this.#loginTimeout = 3 * 60 * 1000;
     this.#isRunning = false;
     this.#steamGuardAuth = null;
-    this.#discordOwnerId = account.discordOwnerId;
     this.#username = account.username;
     this.#password = account.password;
     this.#sharedSecret = account.sharedSecret;
@@ -52,8 +48,6 @@ class SteamBot {
     this.#vacStatus = null;
     this.#toBeRemoved = false;
     this.#toBeRestarted = false;
-
-    this.#discordClient = discordClient;
 
     this.steamUser = new SteamUser({
       dataDirectory: './accounts-data',
@@ -68,10 +62,9 @@ class SteamBot {
     this.steamUser.on('disconnected', this.onDisconnected.bind(this));
   }
 
-  replyDiscord(message) {
-    const { sendDM } = this.#discordClient.functions;
-    const msg = `**${this.getUsername()}** | ${message}`;
-    sendDM(this.getDiscordOwnerId(), msg);
+  logMessage(message) {
+    const msg = `[${this.getUsername()}] ${message}`;
+    logger.info(msg);
   }
 
   setError(error) {
