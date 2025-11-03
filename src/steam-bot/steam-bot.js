@@ -193,18 +193,18 @@ class SteamBot {
 
   #login(isRestart = false) {
     try {
-      const loginMsg = isRestart ? 'ℹ️ Automatically restarting...' : 'Logging in using refresh token...';
-      this.replyDiscord(loginMsg);
+      const loginMsg = isRestart ? 'Automatically restarting...' : 'Logging in using refresh token...';
+      this.logMessage(loginMsg);
 
       this.steamUser.logOn({
         refreshToken: this.getRefreshToken(),
-        machineName: `SHBD-${this.getDiscordOwnerId()}`,
+        machineName: `HB-${this.getUsername()}`,
         clientOS: SteamUser.EOSType.Windows10,
       });
     } catch (error) {
       logger.error(`${this.getUsername()} | ${error}`);
       this.setError(STEAM_BOT_STATUS.LOGIN_ERROR);
-      this.replyDiscord('Error while logging in!');
+      this.logMessage('Error while logging in!');
     }
   }
 
@@ -368,7 +368,7 @@ async #flushIdle() {
   if (elapsedHrs < 1 / 60) return;
 
   try {
-    const games = this.#games || []; // Add this line — get the games list
+    const games = this.#games || []; // Add this line �� get the games list
     await SteamAccount.addIdleHours(this.getUsername(), elapsedHrs, games);
     this.#sessionStart = Date.now();
   } catch (err) {
