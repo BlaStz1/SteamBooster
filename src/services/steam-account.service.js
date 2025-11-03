@@ -1,9 +1,10 @@
-const { prisma } = require('./prisma.service');
+const SteamAccount = require('../models/SteamAccount');
+const { BoostedGame, BoostedGameUser } = require('../models/BoostedGame');
 const { logger } = require('../helpers/logger.helper');
 const { appIdsToBytes, bytesToAppIds } = require('../utils/steam.util');
 const { tokenToBytes, bytesToToken } = require('../utils/jwt.util');
 
-class SteamAccount {
+class SteamAccountService {
   static async addIdleHours(username, hours, games = []) {
     if (hours <= 0) return;
 
@@ -11,52 +12,44 @@ class SteamAccount {
 
     for (let i = 0; i < retries; i++) {
       try {
-        console.log(`[addIdleHours] Updating ${username} with ${hours.toFixed(2)} hours`);
+        logger.info(`[addIdleHours] Updating ${username} with ${hours.toFixed(2)} hours`);
 
-        // Update account's total idled time
-        const updatedAccount = await prisma.steamAccounts.update({
-          where: { username },
-          data: { totalHoursIdled: { increment: hours } },
-        });
+        const steamAccount = await SteamAccount.findOne({ username });
+        if (!steamAccount) {
+          throw new Error('Steam account not found');
+        }
 
-        const steamAccount = await prisma.steamAccounts.findUnique({
-          where: { username }
-        });
+        steamAccount.totalHoursIdled += hours;
+        await steamAccount.save();
 
         for (const appId of games) {
           const name = `App ${appId}`;
 
-          const boostedGame = await prisma.boostedGame.upsert({
-            where: { appId },
-            update: {
-              totalBoosted: { increment: hours },
-              updatedAt: new Date(),
-            },
-            create: {
+          let boostedGame = await BoostedGame.findOne({ appId });
+          if (!boostedGame) {
+            boostedGame = await BoostedGame.create({
               appId,
               name,
               totalBoosted: hours,
-            },
-          });
+            });
+          } else {
+            boostedGame.totalBoosted += hours;
+            await boostedGame.save();
+          }
 
-          await prisma.boostedGameUser.upsert({
-            where: {
-              steamAccountId_boostedGameId: {
-                steamAccountId: steamAccount.id,
-                boostedGameId: boostedGame.id,
-              },
+          await BoostedGameUser.findOneAndUpdate(
+            {
+              steamAccountId: steamAccount._id,
+              boostedGameId: boostedGame._id,
             },
-            update: {},
-            create: {
-              steamAccount: { connect: { id: steamAccount.id } },
-              boostedGame: { connect: { id: boostedGame.id } },
-            },
-          });
+            {},
+            { upsert: true }
+          );
         }
 
-        return updatedAccount;
+        return steamAccount;
       } catch (err) {
-        console.error(`[addIdleHours] Error updating ${username}:`, err);
+        logger.error(`[addIdleHours] Error updating ${username}:`, err);
         if (i === retries - 1) throw err;
         await new Promise((res) => setTimeout(res, 1000));
       }
@@ -64,29 +57,30 @@ class SteamAccount {
   }
 
   static async getGlobalIdleHours() {
-    const { _sum } = await prisma.steamAccounts.aggregate({
-      _sum: { totalHoursIdled: true },
-    });
-    return _sum.totalHoursIdled ?? 0;
+    const result = await SteamAccount.aggregate([
+      {
+        $group: {
+          _id: null,
+          total: { $sum: '$totalHoursIdled' },
+        },
+      },
+    ]);
+    return result[0]?.total ?? 0;
   }
 
   static async getTotalSteamAccounts() {
-    return prisma.steamAccounts.count();
+    return await SteamAccount.countDocuments();
   }
 
-  static async insert({ username, password, sharedSecret, refreshToken, games, discordOwnerId }) {
+  static async insert({ username, password, sharedSecret, refreshToken, games, userId }) {
     try {
-      return await prisma.steamAccounts.create({
-        data: {
-          username,
-          password,
-          sharedSecret,
-          refreshToken: tokenToBytes(refreshToken),
-          games: appIdsToBytes(games),
-          discordOwner: {
-            connect: { discordId: discordOwnerId },
-          },
-        },
+      return await SteamAccount.create({
+        userId,
+        username,
+        password,
+        sharedSecret,
+        refreshToken: tokenToBytes(refreshToken),
+        games: appIdsToBytes(games),
       });
     } catch (error) {
       logger.error(error);
@@ -96,27 +90,19 @@ class SteamAccount {
 
   static async remove(steamUsername) {
     try {
-      return await prisma.steamAccounts.delete({
-        where: { username: steamUsername },
-      });
+      return await SteamAccount.deleteOne({ username: steamUsername });
     } catch (error) {
       logger.error(error);
       throw new Error('Failed to remove Steam account from database');
     }
   }
 
-  static async getAll(discordId) {
+  static async getAll(userId) {
     try {
-      const steamAccounts = await prisma.steamAccounts.findMany({
-        where: {
-          discordOwner: {
-            discordId,
-          },
-        },
-      });
+      const steamAccounts = await SteamAccount.find({ userId });
 
       return steamAccounts.map((steamAccount) => ({
-        ...steamAccount,
+        ...steamAccount.toObject(),
         refreshToken: bytesToToken(steamAccount.refreshToken),
         games: bytesToAppIds(steamAccount.games),
       }));
@@ -128,12 +114,10 @@ class SteamAccount {
 
   static async getAllRunning() {
     try {
-      const steamAccounts = await prisma.steamAccounts.findMany({
-        where: { isRunning: true },
-      });
+      const steamAccounts = await SteamAccount.find({ isRunning: true });
 
       return steamAccounts.map((steamAccount) => ({
-        ...steamAccount,
+        ...steamAccount.toObject(),
         refreshToken: bytesToToken(steamAccount.refreshToken),
         games: bytesToAppIds(steamAccount.games),
       }));
@@ -143,15 +127,11 @@ class SteamAccount {
     }
   }
 
-  static async getAccount(discordId, steamUsername) {
+  static async getAccount(userId, steamUsername) {
     try {
-      const steamAccount = await prisma.steamAccounts.findFirst({
-        where: {
-          username: steamUsername,
-          discordOwner: {
-            discordId,
-          },
-        },
+      const steamAccount = await SteamAccount.findOne({
+        username: steamUsername,
+        userId,
       });
 
       if (!steamAccount) {
@@ -159,7 +139,7 @@ class SteamAccount {
       }
 
       return {
-        ...steamAccount,
+        ...steamAccount.toObject(),
         refreshToken: bytesToToken(steamAccount.refreshToken),
         games: bytesToAppIds(steamAccount.games),
       };
@@ -171,90 +151,79 @@ class SteamAccount {
 
   static async setRunningStatus(steamUsername, isRunning) {
     try {
-      return await prisma.steamAccounts.update({
-        where: { username: steamUsername },
-        data: { isRunning },
-      });
+      return await SteamAccount.findOneAndUpdate(
+        { username: steamUsername },
+        { isRunning },
+        { new: true }
+      );
     } catch (error) {
       logger.error(error);
       throw new Error('Failed to set running status for Steam account in database');
     }
   }
 
-static async setGames(steamUsername, games) {
-  try {
-    const updated = await prisma.steamAccounts.update({
-      where: { username: steamUsername },
-      data: { games: appIdsToBytes(games) }, // optional, only if you're still using this field
-    });
+  static async setGames(steamUsername, games) {
+    try {
+      const updated = await SteamAccount.findOneAndUpdate(
+        { username: steamUsername },
+        { games: appIdsToBytes(games) },
+        { new: true }
+      );
 
-    const steamAccountId = updated.id;
+      const steamAccountId = updated._id;
 
-    // 1. Get all current boosts for this account
-    const existing = await prisma.boostedGameUser.findMany({
-      where: { steamAccountId },
-      include: { boostedGame: true }
-    });
+      const existing = await BoostedGameUser.find({
+        steamAccountId,
+      }).populate('boostedGameId');
 
-    const existingAppIds = new Set(existing.map(b => b.boostedGame.appId));
-    const newAppIds = new Set(games);
+      const existingAppIds = new Set(
+        existing.map((b) => b.boostedGameId.appId)
+      );
+      const newAppIds = new Set(games);
 
-    // 2. Add missing links
-    for (const appId of newAppIds) {
-      let boostedGame = await prisma.boostedGame.findUnique({ where: { appId } });
+      for (const appId of newAppIds) {
+        let boostedGame = await BoostedGame.findOne({ appId });
 
-      if (!boostedGame) {
-        boostedGame = await prisma.boostedGame.create({
-          data: {
+        if (!boostedGame) {
+          boostedGame = await BoostedGame.create({
             appId,
             name: `App ${appId}`,
-          }
-        });
-      }
-
-      await prisma.boostedGameUser.upsert({
-        where: {
-          steamAccountId_boostedGameId: {
-            steamAccountId,
-            boostedGameId: boostedGame.id
-          }
-        },
-        update: {},
-        create: {
-          steamAccount: { connect: { id: steamAccountId } },
-          boostedGame: { connect: { id: boostedGame.id } },
+          });
         }
-      });
-    }
 
-    // 3. Remove any no-longer-used boosts
-    for (const record of existing) {
-      if (!newAppIds.has(record.boostedGame.appId)) {
-        await prisma.boostedGameUser.delete({
-          where: {
-            steamAccountId_boostedGameId: {
-              steamAccountId,
-              boostedGameId: record.boostedGameId
-            }
-          }
-        });
+        await BoostedGameUser.findOneAndUpdate(
+          {
+            steamAccountId,
+            boostedGameId: boostedGame._id,
+          },
+          {},
+          { upsert: true }
+        );
       }
+
+      for (const record of existing) {
+        if (!newAppIds.has(record.boostedGameId.appId)) {
+          await BoostedGameUser.deleteOne({
+            steamAccountId,
+            boostedGameId: record.boostedGameId._id,
+          });
+        }
+      }
+
+      return updated;
+    } catch (error) {
+      logger.error(error);
+      throw new Error('Failed to set games for Steam account in database');
     }
-
-    return updated;
-  } catch (error) {
-    logger.error(error);
-    throw new Error('Failed to set games for Steam account in database');
   }
-}
-
 
   static async setOnlineStatus(steamUsername, onlineStatus) {
     try {
-      return await prisma.steamAccounts.update({
-        where: { username: steamUsername },
-        data: { onlineStatus },
-      });
+      return await SteamAccount.findOneAndUpdate(
+        { username: steamUsername },
+        { onlineStatus },
+        { new: true }
+      );
     } catch (error) {
       logger.error(error);
       throw new Error('Failed to set online status for Steam account in database');
@@ -263,10 +232,11 @@ static async setGames(steamUsername, games) {
 
   static async setSharedSecret(steamUsername, sharedSecret) {
     try {
-      return await prisma.steamAccounts.update({
-        where: { username: steamUsername },
-        data: { sharedSecret },
-      });
+      return await SteamAccount.findOneAndUpdate(
+        { username: steamUsername },
+        { sharedSecret },
+        { new: true }
+      );
     } catch (error) {
       logger.error(error);
       throw new Error('Failed to set shared secret for Steam account in database');
@@ -275,10 +245,11 @@ static async setGames(steamUsername, games) {
 
   static async setRefreshToken(steamUsername, refreshToken) {
     try {
-      return await prisma.steamAccounts.update({
-        where: { username: steamUsername },
-        data: { refreshToken: tokenToBytes(refreshToken) },
-      });
+      return await SteamAccount.findOneAndUpdate(
+        { username: steamUsername },
+        { refreshToken: tokenToBytes(refreshToken) },
+        { new: true }
+      );
     } catch (error) {
       logger.error(error);
       throw new Error('Failed to set refresh token for Steam account in database');
@@ -286,4 +257,4 @@ static async setGames(steamUsername, games) {
   }
 }
 
-module.exports = SteamAccount;
+module.exports = SteamAccountService;
