@@ -338,11 +338,11 @@ async stop(removeAccount = false) {
         this.setSteamGuardAuth(null);
         this.steamUser.setPersona(
           this.getOnlineStatus() ? SteamUser.EPersonaState.Online : SteamUser.EPersonaState.Invisible
-        ); 
+        );
 
-        this.replyDiscord(`Successfully logged on as \`${this.getSteamId64()}\`!`);
+        this.logMessage(`Successfully logged on as ${this.getSteamId64()}`);
         this.steamUser.gamesPlayed(shuffleArray(this.getGames()));
-        this.replyDiscord(`Started playing \`${JSON.stringify(this.getGames())}\`!`);
+        this.logMessage(`Started playing ${JSON.stringify(this.getGames())}`);
         this.setStatus(STEAM_BOT_STATUS.BOOST_STARTED);
         this.#sessionStart = Date.now();
         this.#idleTimer = setInterval(() => this.#flushIdle(), 5 * 60 * 1000);
@@ -350,12 +350,12 @@ async stop(removeAccount = false) {
       } else {
         this.setStatus(STEAM_BOT_STATUS.UnhandledLoggedInEvent(details?.eresult));
         logger.warn(`${this.getUsername()} | Unhandled loggedOn event: (${details?.eresult})`);
-        this.replyDiscord(`Unhandled logged on event: (${details?.eresult})`);
+        this.logMessage(`Unhandled logged on event: (${details?.eresult})`);
       }
     } catch (error) {
       logger.error(`${this.getUsername()} | ${error}`);
       this.setError(STEAM_BOT_STATUS.Error(error));
-      this.replyDiscord('Error after logging in!');
+      this.logMessage('Error after logging in');
     }
   }
 
