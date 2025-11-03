@@ -215,7 +215,7 @@ class SteamBot {
         return;
       }
 
-      this.replyDiscord('Getting new refresh token...');
+      this.logMessage('Getting new refresh token...');
 
       const steamSession = new LoginSession(EAuthTokenPlatformType.SteamClient);
       steamSession.loginTimeout = this.#loginTimeout;
@@ -234,14 +234,14 @@ class SteamBot {
           this.setSteamGuardAuth({ isSessionSteamGuard: true, callback: (code) => steamSession.submitSteamGuardCode(code) });
 
           if (action.type === EAuthSessionGuardType.EmailCode) {
-            this.replyDiscord(`Steam Guard Email (${action?.detail}) Code required! Use \`/boost steam-guard\``);
+            this.logMessage(`Steam Guard Email Code required (${action?.detail})`);
           } else if (action.type === EAuthSessionGuardType.DeviceCode) {
             if (this.getSharedSecret()) {
               const authCode = SteamTotp.getAuthCode(this.getSharedSecret());
-              this.replyDiscord(`Trying using generated Steam Guard Code: \`${authCode}\``);
+              this.logMessage(`Using generated Steam Guard Code: ${authCode}`);
               this.inputSteamGuardCode(authCode);
             } else {
-              this.replyDiscord('Steam Guard Mobile Code required! Use `/boost steam-guard`.');
+              this.logMessage('Steam Guard Mobile Code required');
             }
           }
         }
@@ -254,22 +254,22 @@ class SteamBot {
 
       steamSession.on('timeout', () => {
         this.setSteamGuardAuth(null);
-        this.replyDiscord(`Login timed out! Try again. (Timeout: \`${ms(this.#loginTimeout, { long: true })}\`)`);
+        this.logMessage(`Login timed out (Timeout: ${ms(this.#loginTimeout, { long: true })})`);
       });
 
       steamSession.on('error', (error) => {
         this.setSteamGuardAuth(null);
         logger.error(`${this.getUsername()} | Login error: ${error}`);
-        this.replyDiscord(`ERROR: Login failed! ${error?.message ?? error}`);
+        this.logMessage(`Login failed: ${error?.message ?? error}`);
       });
     } catch (error) {
       if (error.eresult === EResult.InvalidPassword) {
-        this.replyDiscord('ERROR: Invalid password while logging in!');
+        this.logMessage('Invalid password while logging in');
         return;
       }
 
       logger.error(`${this.getUsername()} | Login failure: ${error?.message} (${error?.eresult})`);
-      this.replyDiscord(`ERROR: Login failed: ${error?.message} (${error?.eresult})`);
+      this.logMessage(`Login failed: ${error?.message} (${error?.eresult})`);
       throw error;
     }
   }
@@ -368,7 +368,7 @@ async #flushIdle() {
   if (elapsedHrs < 1 / 60) return;
 
   try {
-    const games = this.#games || []; // Add this line �� get the games list
+    const games = this.#games || []; // Add this line — get the games list
     await SteamAccount.addIdleHours(this.getUsername(), elapsedHrs, games);
     this.#sessionStart = Date.now();
   } catch (err) {
