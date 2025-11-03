@@ -288,7 +288,7 @@ class SteamBot {
 async stop(removeAccount = false) {
   try {
     this.setStatus(STEAM_BOT_STATUS.LOGGING_OUT);
-    this.replyDiscord('Logging out...');
+    this.logMessage('Logging out...');
 
     this.#toBeRemoved = removeAccount;
 
@@ -308,11 +308,11 @@ async stop(removeAccount = false) {
     await this.setIsRunning(false);
 
     this.setStatus(STEAM_BOT_STATUS.LOGGED_OUT);
-    this.replyDiscord('Successfully logged out!');
+    this.logMessage('Successfully logged out');
   } catch (error) {
     logger.error(`${this.getUsername()} | ${error}`);
     this.setError(STEAM_BOT_STATUS.LOGOUT_ERROR);
-    this.replyDiscord('Error while logging out!');
+    this.logMessage('Error while logging out');
   }
 }
 
