@@ -105,13 +105,6 @@ class SteamBot {
     return this.#steamGuardAuth;
   }
 
-  setDiscordOwnerId(discordOwnerId) {
-    this.#discordOwnerId = discordOwnerId;
-  }
-
-  getDiscordOwnerId() {
-    return this.#discordOwnerId;
-  }
 
   setUsername(username) {
     this.#username = username;
