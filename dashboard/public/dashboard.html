@@ -582,6 +582,13 @@
       document.getElementById('logs-modal').classList.add('hidden');
     }
 
+    function close2FAModal() {
+      document.getElementById('steam-2fa-modal').classList.add('hidden');
+      document.getElementById('steam-2fa-form').reset();
+      document.getElementById('steam-2fa-error').classList.add('hidden');
+      document.body.style.overflow = '';
+    }
+
     function getLogTypeColor(type) {
       const colors = {
         'LOGIN': 'bg-green-500/20 text-green-400',
