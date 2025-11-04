@@ -37,6 +37,7 @@ class BotManagerService {
 
     socketIds.forEach(socketId => {
       this.io.to(socketId).emit('show-2fa-modal', { username });
+      this.io.to(socketId).emit('account-status-change', { username, status: 'STEAM_GUARD_REQUIRED' });
     });
   }
 
