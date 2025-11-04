@@ -264,4 +264,27 @@ router.get('/:username/logs', async (req, res) => {
   }
 });
 
+router.post('/:username/submit-2fa', async (req, res) => {
+  try {
+    const { username } = req.params;
+    const { code } = req.body;
+
+    if (!code || code.length !== 6) {
+      return res.status(400).json({ error: 'Invalid code format' });
+    }
+
+    const account = await SteamAccountService.getAccount(req.user._id, username);
+    if (!account) {
+      return res.status(404).json({ error: 'Account not found' });
+    }
+
+    await AccountLogService.addLog(account._id, 'STEAM_GUARD', `2FA code submitted by user`, { codeLength: code.length });
+
+    res.status(200).json({ message: '2FA code submitted' });
+  } catch (error) {
+    logger.error('Submit 2FA error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 module.exports = router;
