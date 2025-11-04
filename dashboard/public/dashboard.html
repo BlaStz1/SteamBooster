@@ -772,6 +772,12 @@
     });
 
 
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && !document.getElementById('steam-2fa-modal').classList.contains('hidden')) {
+        close2FAModal();
+      }
+    });
+
     function logout() {
       localStorage.removeItem('token');
       localStorage.removeItem('user');
