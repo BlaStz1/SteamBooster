@@ -154,6 +154,46 @@
     document.getElementById('username').textContent = user.username || 'User';
     let currentEditingAccount = null;
 
+    document.getElementById('steam-2fa-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const code = document.getElementById('steam-2fa-code').value;
+      const errorDiv = document.getElementById('steam-2fa-error');
+
+      if (code.length !== 6 || isNaN(code)) {
+        errorDiv.textContent = 'Please enter a valid 6-digit code';
+        errorDiv.classList.remove('hidden');
+        return;
+      }
+
+      try {
+        const response = await fetch(`/api/accounts/${currentEditingAccount}/submit-2fa`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+          },
+          body: JSON.stringify({ code }),
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          errorDiv.textContent = data.error || 'Invalid code';
+          errorDiv.classList.remove('hidden');
+          return;
+        }
+
+        document.getElementById('steam-2fa-modal').classList.add('hidden');
+        document.getElementById('steam-2fa-form').reset();
+        errorDiv.classList.add('hidden');
+        loadAccounts();
+      } catch (error) {
+        console.error('2FA submission error:', error);
+        errorDiv.textContent = 'An error occurred. Please try again.';
+        errorDiv.classList.remove('hidden');
+      }
+    });
+
     async function loadAccounts() {
       try {
         const response = await fetch('/api/accounts', {
