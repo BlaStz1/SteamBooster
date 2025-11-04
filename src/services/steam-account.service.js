@@ -103,8 +103,8 @@ class SteamAccountService {
 
       return steamAccounts.map((steamAccount) => ({
         ...steamAccount.toObject(),
-        refreshToken: bytesToToken(steamAccount.refreshToken),
-        games: bytesToAppIds(steamAccount.games),
+        refreshToken: steamAccount.refreshToken ? bytesToToken(steamAccount.refreshToken) : null,
+        games: steamAccount.games ? bytesToAppIds(steamAccount.games) : [],
       }));
     } catch (error) {
       logger.error(error);
@@ -118,8 +118,8 @@ class SteamAccountService {
 
       return steamAccounts.map((steamAccount) => ({
         ...steamAccount.toObject(),
-        refreshToken: bytesToToken(steamAccount.refreshToken),
-        games: bytesToAppIds(steamAccount.games),
+        refreshToken: steamAccount.refreshToken ? bytesToToken(steamAccount.refreshToken) : null,
+        games: steamAccount.games ? bytesToAppIds(steamAccount.games) : [],
       }));
     } catch (error) {
       logger.error(error);
@@ -140,8 +140,8 @@ class SteamAccountService {
 
       return {
         ...steamAccount.toObject(),
-        refreshToken: bytesToToken(steamAccount.refreshToken),
-        games: bytesToAppIds(steamAccount.games),
+        refreshToken: steamAccount.refreshToken ? bytesToToken(steamAccount.refreshToken) : null,
+        games: steamAccount.games ? bytesToAppIds(steamAccount.games) : [],
       };
     } catch (error) {
       logger.error(error);
