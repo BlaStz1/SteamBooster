@@ -389,33 +389,49 @@
       `).join('');
     }
 
-    function openAccountMenu(username, event) {
-      event.stopPropagation();
-      const menu = document.createElement('div');
-      menu.className = 'fixed bg-[#0e0e10] border border-white/20 rounded-lg shadow-lg z-[1000] p-2 space-y-1';
-      menu.style.left = event.pageX + 'px';
-      menu.style.top = event.pageY + 'px';
+    function toggleAccountLogs(username) {
+      const logsDiv = document.getElementById(`logs-${username}`);
+      const logsContent = document.getElementById(`logs-content-${username}`);
 
-      const buttons = [
-        { label: 'Start', fn: `startAccount('${username}')`, class: 'bg-green-500/20 hover:bg-green-500/30' },
-        { label: 'Stop', fn: `stopAccount('${username}')`, class: 'bg-red-500/20 hover:bg-red-500/30' },
-        { label: 'Logs', fn: `openLogsModal('${username}')`, class: 'bg-cyan-500/20 hover:bg-cyan-500/30' },
-        { label: 'Games', fn: `openEditGamesModal('${username}')`, class: 'bg-blue-500/20 hover:bg-blue-500/30' },
-        { label: 'Settings', fn: `openSettingsModal('${username}')`, class: 'bg-purple-500/20 hover:bg-purple-500/30' },
-        { label: 'Check', fn: `healthCheck('${username}')`, class: 'bg-yellow-500/20 hover:bg-yellow-500/30' },
-        { label: 'Delete', fn: `deleteAccount('${username}')`, class: 'bg-red-600/20 hover:bg-red-600/30' }
-      ];
+      if (logsDiv.classList.contains('hidden')) {
+        logsDiv.classList.remove('hidden');
+        loadAccountLogs(username, logsContent);
+      } else {
+        logsDiv.classList.add('hidden');
+      }
+    }
 
-      menu.innerHTML = buttons.map(btn => `
-        <button onclick="${btn.fn}" class="w-full px-3 py-2 text-xs text-white ${btn.class} rounded transition text-left">
-          ${btn.label}
-        </button>
-      `).join('');
+    async function loadAccountLogs(username, logsContent) {
+      try {
+        const response = await fetch(`/api/accounts/${username}/logs`, {
+          headers: { 'Authorization': `Bearer ${token}` },
+        });
 
-      document.body.appendChild(menu);
-      setTimeout(() => {
-        document.addEventListener('click', () => menu.remove(), { once: true });
-      }, 0);
+        if (!response.ok) {
+          logsContent.innerHTML = '<p class="text-red-400 text-sm">Failed to load logs</p>';
+          return;
+        }
+
+        const data = await response.json();
+
+        if (data.logs.length === 0) {
+          logsContent.innerHTML = '<p class="text-white/50 text-sm text-center py-4">No logs yet</p>';
+          return;
+        }
+
+        logsContent.innerHTML = data.logs.map(log => `
+          <div class="bg-white/5 border border-white/10 rounded-lg p-3">
+            <div class="flex justify-between items-start gap-2 mb-1">
+              <span class="px-2 py-1 rounded text-xs font-semibold ${getLogTypeColor(log.type)}">${log.type}</span>
+              <span class="text-white/50 text-xs">${new Date(log.createdAt).toLocaleString()}</span>
+            </div>
+            <p class="text-white/80 text-sm">${log.message}</p>
+          </div>
+        `).join('');
+      } catch (error) {
+        console.error('Load logs error:', error);
+        logsContent.innerHTML = '<p class="text-red-400 text-sm">Error loading logs</p>';
+      }
     }
 
     function formatUptime(date) {
