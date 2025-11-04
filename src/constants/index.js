@@ -29,19 +29,19 @@ const USER_TIERS = {
   FREE: {
     id: 'free',
     name: 'Free',
-    maxSteamAccounts: 2,
-    maxSteamGames: 30,
+    maxSteamAccounts: 5,
+    maxSteamGames: 15,
   },
   PREMIUM: {
     id: 'premium',
     name: 'Premium',
-    maxSteamAccounts: 5,
+    maxSteamAccounts: 20,
     maxSteamGames: 100,
   },
   ULTRA: {
     id: 'ultra',
     name: 'Ultra',
-    maxSteamAccounts: 20,
+    maxSteamAccounts: 50,
     maxSteamGames: 300,
   },
 };
