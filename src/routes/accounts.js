@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const SteamAccountService = require('../services/steam-account.service');
 const AccountLogService = require('../services/account-log.service');
+const BotManagerService = require('../services/bot-manager.service');
 const SteamAccount = require('../models/SteamAccount');
 const { BoostedGame, BoostedGameUser } = require('../models/BoostedGame');
 const { logger } = require('../helpers/logger.helper');
@@ -204,6 +205,7 @@ router.get('/:username/stats', async (req, res) => {
 router.post('/:username/start', async (req, res) => {
   try {
     const { username } = req.params;
+    const { offlineMode = false } = req.body;
 
     const account = await SteamAccountService.getAccount(req.user._id, username);
     if (!account) {
@@ -214,9 +216,21 @@ router.post('/:username/start', async (req, res) => {
       return res.status(400).json({ error: 'Account is already running' });
     }
 
-    await AccountLogService.addLog(account._id, 'STATUS_CHANGE', 'Account started by user', { status: 'starting' });
+    const validation = await BotManagerService.validateAccount(req.user._id, username);
+    if (!validation.valid) {
+      return res.status(400).json({ error: validation.error });
+    }
 
-    res.status(200).json({ message: 'Account start initiated' });
+    if (!offlineMode && !account.password) {
+      return res.status(400).json({ error: 'Password is required to start the bot' });
+    }
+
+    const result = await BotManagerService.startBot(req.user._id, username);
+    if (result.error) {
+      return res.status(400).json({ error: result.error });
+    }
+
+    res.status(200).json({ message: result.message, offlineMode });
   } catch (error) {
     logger.error('Start account error:', error);
     res.status(500).json({ error: error.message });
@@ -232,13 +246,12 @@ router.post('/:username/stop', async (req, res) => {
       return res.status(404).json({ error: 'Account not found' });
     }
 
-    if (!account.isRunning) {
-      return res.status(400).json({ error: 'Account is already stopped' });
+    const result = await BotManagerService.stopBot(req.user._id, username);
+    if (result.error) {
+      return res.status(400).json({ error: result.error });
     }
 
-    await AccountLogService.addLog(account._id, 'STATUS_CHANGE', 'Account stopped by user', { status: 'stopping' });
-
-    res.status(200).json({ message: 'Account stop initiated' });
+    res.status(200).json({ message: result.message });
   } catch (error) {
     logger.error('Stop account error:', error);
     res.status(500).json({ error: error.message });
@@ -278,11 +291,196 @@ router.post('/:username/submit-2fa', async (req, res) => {
       return res.status(404).json({ error: 'Account not found' });
     }
 
+    const bot = BotManagerService.getBot(username);
+    if (!bot) {
+      return res.status(400).json({ error: 'Bot not running' });
+    }
+
+    await bot.inputSteamGuardCode(code);
     await AccountLogService.addLog(account._id, 'STEAM_GUARD', `2FA code submitted by user`, { codeLength: code.length });
 
     res.status(200).json({ message: '2FA code submitted' });
   } catch (error) {
     logger.error('Submit 2FA error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+router.post('/:username/restart', async (req, res) => {
+  try {
+    const { username } = req.params;
+
+    const account = await SteamAccountService.getAccount(req.user._id, username);
+    if (!account) {
+      return res.status(404).json({ error: 'Account not found' });
+    }
+
+    const result = await BotManagerService.restartBot(req.user._id, username);
+    if (result.error) {
+      return res.status(400).json({ error: result.error });
+    }
+
+    res.status(200).json({ message: result.message });
+  } catch (error) {
+    logger.error('Restart account error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+router.get('/:username/status', async (req, res) => {
+  try {
+    const { username } = req.params;
+
+    const account = await SteamAccountService.getAccount(req.user._id, username);
+    if (!account) {
+      return res.status(404).json({ error: 'Account not found' });
+    }
+
+    const botStatus = BotManagerService.getBotStatus(username);
+
+    res.status(200).json({
+      username,
+      isRunning: botStatus.running,
+      status: botStatus.status,
+      error: botStatus.error,
+      steamId: botStatus.steamId,
+      vacStatus: botStatus.vacStatus,
+      hoursIdled: account.totalHoursIdled,
+      games: account.games,
+    });
+  } catch (error) {
+    logger.error('Get status error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+router.post('/:username/rotate-games', async (req, res) => {
+  try {
+    const { username } = req.params;
+    const { interval = 3600000 } = req.body;
+
+    const account = await SteamAccountService.getAccount(req.user._id, username);
+    if (!account) {
+      return res.status(404).json({ error: 'Account not found' });
+    }
+
+    const bot = BotManagerService.getBot(username);
+    if (!bot) {
+      return res.status(400).json({ error: 'Bot not running' });
+    }
+
+    await AccountLogService.addLog(account._id, 'GAME_UPDATE', `Game rotation enabled (${interval}ms interval)`, { interval });
+    await SteamAccountService.setGameRotation(username, true, interval);
+
+    res.status(200).json({ message: 'Game rotation enabled', interval });
+  } catch (error) {
+    logger.error('Rotate games error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+router.post('/:username/clone-settings/:sourceUsername', async (req, res) => {
+  try {
+    const { username, sourceUsername } = req.params;
+
+    const sourceAccount = await SteamAccountService.getAccount(req.user._id, sourceUsername);
+    if (!sourceAccount) {
+      return res.status(404).json({ error: 'Source account not found' });
+    }
+
+    const targetAccount = await SteamAccountService.getAccount(req.user._id, username);
+    if (!targetAccount) {
+      return res.status(404).json({ error: 'Target account not found' });
+    }
+
+    await SteamAccountService.setGames(username, sourceAccount.games || []);
+    await SteamAccountService.setOnlineStatus(username, sourceAccount.onlineStatus);
+
+    await AccountLogService.addLog(targetAccount._id, 'GAME_UPDATE', `Settings cloned from ${sourceUsername}`, { source: sourceUsername });
+
+    res.status(200).json({ message: 'Settings cloned successfully' });
+  } catch (error) {
+    logger.error('Clone settings error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+router.post('/batch/start', async (req, res) => {
+  try {
+    const { usernames = [] } = req.body;
+
+    if (!Array.isArray(usernames) || usernames.length === 0) {
+      return res.status(400).json({ error: 'No usernames provided' });
+    }
+
+    const results = {};
+
+    for (const username of usernames) {
+      const account = await SteamAccountService.getAccount(req.user._id, username);
+      if (!account) {
+        results[username] = { success: false, error: 'Account not found' };
+        continue;
+      }
+
+      const result = await BotManagerService.startBot(req.user._id, username);
+      results[username] = result.error ? { success: false, error: result.error } : { success: true };
+    }
+
+    res.status(200).json({ results });
+  } catch (error) {
+    logger.error('Batch start error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+router.post('/batch/stop', async (req, res) => {
+  try {
+    const { usernames = [] } = req.body;
+
+    if (!Array.isArray(usernames) || usernames.length === 0) {
+      return res.status(400).json({ error: 'No usernames provided' });
+    }
+
+    const results = {};
+
+    for (const username of usernames) {
+      const account = await SteamAccountService.getAccount(req.user._id, username);
+      if (!account) {
+        results[username] = { success: false, error: 'Account not found' };
+        continue;
+      }
+
+      const result = await BotManagerService.stopBot(req.user._id, username);
+      results[username] = result.error ? { success: false, error: result.error } : { success: true };
+    }
+
+    res.status(200).json({ results });
+  } catch (error) {
+    logger.error('Batch stop error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+router.get('/health-check/:username', async (req, res) => {
+  try {
+    const { username } = req.params;
+
+    const account = await SteamAccountService.getAccount(req.user._id, username);
+    if (!account) {
+      return res.status(404).json({ error: 'Account not found' });
+    }
+
+    const validation = await BotManagerService.validateAccount(req.user._id, username);
+
+    await AccountLogService.addLog(account._id, 'INFO', 'Health check performed', { valid: validation.valid });
+
+    res.status(200).json({
+      username,
+      healthy: validation.valid,
+      error: validation.error || null,
+    });
+  } catch (error) {
+    logger.error('Health check error:', error);
     res.status(500).json({ error: error.message });
   }
 });
