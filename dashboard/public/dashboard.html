@@ -21,6 +21,34 @@
     </div>
   </nav>
 
+  <div id="steam-2fa-modal" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+    <div class="bg-[#0e0e10] border border-white/10 rounded-2xl max-w-md w-full p-8">
+      <h2 class="text-2xl font-bold mb-4">Steam Guard Code Required</h2>
+      <p class="text-white/70 mb-6" id="steam-2fa-account">Account: <strong id="steam-2fa-account-name">-</strong></p>
+      <p class="text-white/60 text-sm mb-6">Enter the 6-digit code from your Steam authenticator or email:</p>
+      <form id="steam-2fa-form" class="space-y-4">
+        <div>
+          <input id="steam-2fa-code" type="text" maxlength="6" placeholder="000000" required
+            class="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white text-center text-2xl tracking-widest placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-red-500">
+        </div>
+        <div id="steam-2fa-error" class="hidden bg-red-500/20 border border-red-500/40 text-red-300 text-sm p-3 rounded-lg"></div>
+        <button type="submit" class="w-full py-2 bg-red-500 hover:bg-red-600 rounded-lg font-semibold transition">Submit Code</button>
+      </form>
+    </div>
+  </div>
+
+  <div id="logs-modal" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+    <div class="bg-[#0e0e10] border border-white/10 rounded-2xl max-w-2xl w-full p-8 max-h-[80vh] overflow-y-auto">
+      <div class="flex justify-between items-center mb-6">
+        <h2 class="text-2xl font-bold">Account Logs</h2>
+        <button onclick="closeLogsModal()" class="text-white/60 hover:text-white text-2xl">×</button>
+      </div>
+      <div id="logs-list" class="space-y-3">
+        <p class="text-white/50 text-center py-8">Loading logs...</p>
+      </div>
+    </div>
+  </div>
+
   <div class="pt-24 pb-8 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
       <div class="bg-white/5 border border-white/10 rounded-2xl p-6">
