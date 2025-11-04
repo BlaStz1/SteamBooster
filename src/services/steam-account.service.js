@@ -141,6 +141,7 @@ class SteamAccountService {
 
       return {
         ...steamAccount.toObject(),
+        password: steamAccount.password || '',
         refreshToken: steamAccount.refreshToken ? bytesToToken(steamAccount.refreshToken) : null,
         games: steamAccount.games ? bytesToAppIds(steamAccount.games) : [],
       };
