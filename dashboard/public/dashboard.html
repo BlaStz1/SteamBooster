@@ -269,6 +269,11 @@
       showSteam2FAModalForAccount(data.username);
     });
 
+    socket.on('account-status-change', (data) => {
+      setBotStatus(data.username, { status: data.status });
+      loadAccounts();
+    });
+
     socket.on('log-added', (data) => {
       loadAccounts();
     });
