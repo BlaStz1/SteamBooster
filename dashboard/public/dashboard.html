@@ -245,13 +245,14 @@
           body: JSON.stringify({ code }),
         });
 
-        const data = await response.json();
-
         if (!response.ok) {
+          const data = await response.json();
           errorDiv.textContent = data.error || 'Invalid code';
           errorDiv.classList.remove('hidden');
           return;
         }
+
+        const data = await response.json();
 
         document.getElementById('steam-2fa-modal').classList.add('hidden');
         document.getElementById('steam-2fa-form').reset();
@@ -388,13 +389,14 @@
           body: JSON.stringify({ username, password, games: gameIds }),
         });
 
-        const data = await response.json();
-
         if (!response.ok) {
+          const data = await response.json();
           errorDiv.textContent = data.error || 'Failed to add account';
           errorDiv.classList.remove('hidden');
           return;
         }
+
+        const data = await response.json();
 
         closeAddAccountModal();
         loadAccounts();
@@ -430,13 +432,14 @@
           body: JSON.stringify({ games: gameIds }),
         });
 
-        const data = await response.json();
-
         if (!response.ok) {
+          const data = await response.json();
           errorDiv.textContent = data.error || 'Failed to update games';
           errorDiv.classList.remove('hidden');
           return;
         }
+
+        const data = await response.json();
 
         closeEditGamesModal();
         loadAccounts();
@@ -608,12 +611,13 @@
           headers: { 'Authorization': `Bearer ${token}` },
         });
 
-        const data = await response.json();
-
         if (!response.ok) {
+          const data = await response.json();
           alert(data.error || 'Failed to restart account');
           return;
         }
+
+        const data = await response.json();
 
         loadAccounts();
       } catch (error) {
@@ -627,12 +631,13 @@
           headers: { 'Authorization': `Bearer ${token}` },
         });
 
-        const data = await response.json();
-
         if (!response.ok) {
+          const data = await response.json();
           alert('Health check failed: ' + (data.error || 'Unknown error'));
           return;
         }
+
+        const data = await response.json();
 
         if (data.healthy) {
           alert(`✓ ${username} is healthy and ready to boost!`);
