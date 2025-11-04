@@ -528,9 +528,8 @@
           headers: { 'Authorization': `Bearer ${token}` },
         });
 
-        const data = await response.json();
-
         if (!response.ok) {
+          const data = await response.json();
           alert(data.error || 'Failed to stop account');
           return;
         }
