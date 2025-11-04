@@ -9,19 +9,19 @@
   <meta content="#dc2626" data-react-helmet="true" name="theme-color" />
   <meta name="title" content="Hour Booster" />
   <meta name="description"
-    content="Hour Booster will provide services to boost your hours in your favorite games, through discord and web." />
+    content="Hour Booster will provide services to boost your hours in your favorite games with our web dashboard." />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="#" />
   <meta property="og:title" content="Take Your Account to the Next Level" />
   <meta property="og:description"
-    content="Hour Booster will provide services to boost your hours in your favorite games, through discord and web." />
+    content="Hour Booster will provide services to boost your hours in your favorite games with our web dashboard." />
   <meta property="og:image" content="./images/logo.png" />
   <meta property="og:color" content="#5b21b6" />
   <meta property="twitter:card" content="summary_large_image" />
   <meta property="twitter:url" content="#" />
   <meta property="twitter:title" content="Take Your Account to the Next Level" />
   <meta property="twitter:description"
-    content="Hour Booster will provide services to boost your hours in your favorite games, through discord and web." />
+    content="Hour Booster will provide services to boost your hours in your favorite games with our web dashboard." />
   <meta property="twitter:image" content="./images/logo.png" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
@@ -73,13 +73,13 @@
             <div class="px-2 pt-2 pb-3 space-y-1 bg-black/50 rounded-lg mt-2">
               <a href="#hero" class="block px-3 py-2 text-white/70 hover:text-white transition-colors">Home</a>
               <a href="#features" class="block px-3 py-2 text-white/70 hover:text-white transition-colors">Features</a>
-              <a href="#commands" class="block px-3 py-2 text-white/70 hover:text-white transition-colors">Commands</a>
             </div>
           </div>
         </div>
       </div>
+    </div>
   </nav>
-  
+
   <section id="hero" class="min-h-screen relative overflow-hidden flex items-center">
     <div class="absolute inset-0 gradient-bg opacity-10"></div>
     <div
@@ -88,30 +88,22 @@
 
     <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-        <!-- LEFT SIDE -->
         <div class="space-y-8 text-center lg:text-left">
           <h1 class="text-4xl md:text-6xl font-bold leading-tight">
             <span class="bg-clip-text text-transparent bg-gradient-to-r from-red-500 to-red-700">Hour Booster</span>
           </h1>
           <p class="text-lg md:text-xl text-white/70">
-            Level up your Steam presence by idling games with precision. Connect via Discord, manage accounts, and start
+            Level up your Steam presence by idling games with precision. Manage accounts, and start
             boosting hours automatically across your library.
           </p>
           <div class="flex flex-col gap-4 sm:flex-row sm:gap-8 justify-center lg:justify-start">
-            <a href="https://discord.gg/Qt4vT3Enc8"
+            <a href="/login"
               class="inline-flex items-center justify-center gradient-bg px-8 py-4 rounded-xl font-semibold hover:opacity-90 transition-opacity duration-300">
-              Join our Server
+              Launch Dashboard
             </a>
-            <!-- <a
-            href="/login"
-            class="inline-flex items-center justify-center bg-white/10 hover:bg-white/20 px-8 py-4 rounded-xl font-semibold transition-colors duration-300"
-          >
-            Dashboard
-          </a> -->
           </div>
         </div>
 
-        <!-- RIGHT SIDE -->
         <div class="relative">
           <div class="lg:block hidden absolute inset-0 bg-red-500 rounded-3xl blur-3xl opacity-20"></div>
           <img src="images/image.png" alt="Bot Dashboard"
@@ -163,13 +155,12 @@
           </div>
           <h3 class="text-2xl font-bold mb-4">Configuration</h3>
           <p class="text-white/70">
-            Easily customize your settings through our Discord bot.
+            Easily customize your settings through our web dashboard.
           </p>
         </div>
       </div>
     </div>
   </section>
-
 
   <section id="hour-counter" class="py-32 relative">
     <div class="text-center mb-5">
@@ -180,7 +171,6 @@
     </div>
 
     <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-      <!-- Tabs -->
       <div class="flex justify-center mb-8 border-b border-white/10">
         <button
           class="tab-btn px-6 py-3 text-white/60 hover:text-white border-b-2 border-transparent transition-all duration-200"
@@ -206,7 +196,6 @@
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
-          <!-- Left -->
           <div class="text-center lg:text-left space-y-4">
             <h2 class="text-6xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-red-500 to-red-700"
               id="total-hours">
@@ -215,35 +204,17 @@
             <p class="text-white/60 text-lg" id="timeframe-label">seconds passed</p>
           </div>
 
-          <!-- Right -->
           <div class="space-y-3 text-white/80 text-lg">
             <p id="range-container">
               <span id="range-text" class="highlight">0 seconds</span>
             </p>
             <p>...idling on <span class="highlight" id="games-count">30</span> games at the same time</p>
-            <!-- ...idling on <span class="highlight" id="games-count">32</span> games at the same time -->
             <p>Which is <span class="highlight" id="per-game">0.00417 hours</span> per game</p>
-
           </div>
         </div>
       </div>
-  </section>
-
-
-
-
-  <section id="commands" class="py-32 relative">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="text-center mb-20">
-        <h2 class="text-6xl font-bold mb-4">Commands</h2>
-        <p class="text-2xl text-white/70">
-          Explore all available bot commands
-        </p>
-      </div>
-      <div class="space-y-6" id="commands-container"></div>
     </div>
   </section>
-
 
   <section id="faq" class="py-32 relative">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -251,10 +222,7 @@
         <h2 class="text-5xl font-bold mb-4 text-white">Frequently Asked Questions</h2>
         <p class="text-lg text-white/70">Instant Answers to some of our most Frequently Asked Questions.</p>
         <p class="text-lg text-white/70">
-          However you can always join our
-          <img src="images/download.png" alt="Discord" class="inline h-5 mx-1 align-text-bottom" />
-          <a href="https://discord.gg/Qt4vT3Enc8" class="text-blue-400 hover:underline" target="_blank">Discord</a>
-          for Direct &amp; Live Support!
+          For support, please contact us through our dashboard support page.
         </p>
       </div>
 
@@ -264,7 +232,7 @@
             01.</div>
           <div>
             <h3 class="text-2xl font-bold mb-2">How do I start boosting?</h3>
-            <p class="text-white/70">Join our discord, get a license key, add your Steam accounts, and start boosting!
+            <p class="text-white/70">Create an account, add your Steam accounts, and start boosting!
             </p>
           </div>
         </div>
@@ -273,7 +241,7 @@
             02.</div>
           <div>
             <h3 class="text-2xl font-bold mb-2">Is it VAC safe?</h3>
-            <p class="text-white/70">Yes — we don’t connect to VAC servers or use any automation that risks bans.</p>
+            <p class="text-white/70">Yes — we don't connect to VAC servers or use any automation that risks bans.</p>
           </div>
         </div>
         <div class="feature-card p-8 rounded-2xl flex gap-6">
@@ -290,7 +258,7 @@
             04.</div>
           <div>
             <h3 class="text-2xl font-bold mb-2">Can I remove my accounts?</h3>
-            <p class="text-white/70">Yes. You can easily remove all your Steam accounts in our Discord bot.</p>
+            <p class="text-white/70">Yes. You can easily remove all your Steam accounts in our web dashboard.</p>
           </div>
         </div>
       </div>
@@ -304,7 +272,6 @@
 
     <section
       class="relative bg-black rounded-3xl border border-white/10 shadow-xl max-w-5xl mx-auto mt-16 overflow-visible ">
-      <!-- Background -->
       <div class="absolute inset-0 z-0 overflow-hidden rounded-3xl">
         <video autoplay muted loop playsinline class="absolute inset-0 w-full h-full object-cover opacity-50 z-0">
           <source
@@ -314,22 +281,17 @@
         <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/60 to-transparent"></div>
       </div>
       <div class="relative z-10 flex flex-col sm:flex-row items-center gap-6 px-6 py-10 sm:px-10">
-        <!-- Wrap this in your avatar container -->
         <div class="relative w-28 h-28 shrink-0">
-          <!-- Avatar (smaller size, centered) -->
           <img
             src="https://cdn.fastly.steamstatic.com/steamcommunity/public/images/items/1145360/33d34be0ff75791aa9cd268b6cf4386e8102af1f.gif"
             alt="Avatar"
             class="absolute top-1/2 left-1/2 w-24 h-24 object-cover rounded-md z-0 transform -translate-x-1/2 -translate-y-1/2" />
-          <!-- Frame (slightly scaled up to overlap more) -->
           <img
             src="https://cdn.fastly.steamstatic.com/steamcommunity/public/images/items/1145360/b467940f7e0d66cbef3f34b93da3fde10f52f316.png"
             alt="Avatar Frame"
             class="absolute top-1/2 left-1/2 w-full h-full z-10 pointer-events-none transform -translate-x-1/2 -translate-y-1/2 scale-110" />
         </div>
 
-
-        <!-- Name + Badges -->
         <div class="flex-1 space-y-2">
           <div class="flex flex-wrap items-center gap-3">
             <h1 class="text-3xl font-bold text-white">d_vil_sh</h1>
@@ -347,11 +309,9 @@
           </div>
           <p class="text-white/50 text-sm">
             Lead Developer of <span class="text-red-500 drop-shadow-md">Hour Booster</span>
-
           </p>
         </div>
 
-        <!-- Steam Level -->
         <div
           class="relative w-16 h-16 rounded-full border-4 border-yellow-400 flex items-center justify-center text-white font-bold text-lg">
           32
@@ -359,9 +319,7 @@
         </div>
       </div>
 
-      <!-- Stats -->
       <div class="relative z-10 grid grid-cols-2 sm:grid-cols-3 gap-4 px-6 pb-6 text-white/80 text-sm">
-
         <div class="relative text-center p-4 rounded-xl border border-white/10 backdrop-blur overflow-hidden">
           <div class="absolute inset-0 z-0">
             <img src="https://images4.alphacoders.com/135/1356855.png" alt="Call of Duty Background"
@@ -388,13 +346,11 @@
             <p class="text-white/50 text-sm">250+ hours</p>
           </div>
         </div>
-
       </div>
     </section>
 
     <section
       class="relative bg-black rounded-3xl border border-white/10 shadow-xl max-w-5xl mx-auto mt-16 overflow-visible">
-      <!-- Background -->
       <div class="absolute inset-0 z-0 overflow-hidden rounded-3xl">
         <video autoplay muted loop playsinline class="absolute inset-0 w-full h-full object-cover opacity-50 z-0">
           <source
@@ -405,7 +361,6 @@
       </div>
 
       <div class="relative z-10 flex flex-col sm:flex-row items-center gap-6 px-6 py-10 sm:px-10">
-        <!-- Avatar -->
         <div class="relative w-28 h-28 shrink-0">
           <img src="https://avatars.fastly.steamstatic.com/9d5a8047f72e9e1c59e68272e7a08f4b7a487ce5_full.jpg"
             alt="Avatar"
@@ -416,7 +371,6 @@
             class="absolute top-1/2 left-1/2 w-full h-full z-10 pointer-events-none transform -translate-x-1/2 -translate-y-1/2 scale-110" />
         </div>
 
-        <!-- Info -->
         <div class="flex-1 space-y-2">
           <div class="flex flex-wrap items-center gap-3">
             <h1 class="text-3xl font-bold text-white">avalon</h1>
@@ -436,7 +390,6 @@
           </p>
         </div>
 
-        <!-- Steam Level -->
         <div
           class="relative w-16 h-16 rounded-full border-4 border-purple-400 flex items-center justify-center text-white font-bold text-lg">
           2
@@ -444,15 +397,12 @@
         </div>
       </div>
 
-      <!-- Stats -->
       <div class="relative z-10 grid grid-cols-2 sm:grid-cols-3 gap-4 px-6 pb-6 text-white/80 text-sm">
         <div class="relative text-center p-4 rounded-xl border border-white/10 backdrop-blur overflow-hidden">
           <div class="absolute inset-0 z-0">
             <img src="https://tr.rbxcdn.com/180DAY-832e5e525e69ac0aaa8619cf45586992/768/432/Image/Webp/noFilter"
               alt="CS2 Background" class="w-full h-full object-cover opacity-30 blur-sm">
-            <div class="absolute inset-0 bg-black/30">
-
-            </div>
+            <div class="absolute inset-0 bg-black/30"></div>
           </div>
           <div class="relative z-10">
             <h3 class="uppercase text-white/60 text-xs mb-1">Favorite Game</h3>
@@ -475,147 +425,7 @@
         </div>
       </div>
     </section>
-
   </section>
-
-
-  <section class="bg-black py-32 relative">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="text-center mb-20">
-        <h2 class="text-6xl font-bold mb-4 text-white">Connect With Us</h2>
-        <p class="text-2xl text-white/70">Join our community and contribute to development.</p>
-      </div>
-      <div id="social-links" class="flex flex-col gap-8 w-full max-w-2xl mx-auto"></div>
-    </div>
-  </section>
-
-
-  <script>
-    const links = [
-      {
-        type: "discord",
-        guildId: "1383596058084380775",
-        subtitle: "Official Discord Server for Hour Booster", // ← editable label
-        inviteCode: "Qt4vT3Enc8",
-        icon: "images/image.png", // ← static local icon
-        badges: [
-          {
-            name: "Official",
-            icon: "https://cdn3.emoji.gg/emojis/1674-verified-maroon.png",
-            description: "Official Development Server"
-          }
-        ]
-      }
-    ];
-
-    function createDiscordCard(link, online = "Loading...", total = "Loading...", iconUrl = "images/ogimage.png", name = "Loading...") {
-      const badgeHTML = (link.badges || []).map(badge => `
-      <div class="relative group z-50">
-        <img src="${badge.icon}" alt="${badge.name}" class="w-5 h-5 cursor-pointer" />
-        <div class="absolute hidden group-hover:flex flex-col items-center bottom-full left-1/2 transform -translate-x-1/2 mb-2 z-[9999]">
-          <div class="tooltip-box px-2 py-1 text-xs text-white text-center">${badge.description}</div>
-          <div class="w-2 h-2 rotate-45 mt-[-4px] bg-white/5 border-l border-t border-white/10"></div>
-        </div>
-      </div>
-    `).join("");
-
-      return `
-      <div class="bg-white/5 border border-white/10 rounded-2xl p-6 flex items-center justify-between feature-card">
-        <div class="flex items-center gap-4">
-<img src="${iconUrl}" alt="Server Icon" class="h-20 w-auto object-contain rounded-lg" />
-          <div class="flex flex-col">
-            <div class="flex gap-2 flex-wrap items-center">
-              <span class="text-white text-xl font-semibold leading-none">${name}</span>
-              <div class="flex gap-1 items-center translate-y-[1px]">${badgeHTML}</div>
-            </div>
-            <p class="text-white/70 text-sm mt-1">${link.subtitle || "Discord Server"}</p>
-            <div class="text-white/60 text-xs mt-1 flex items-center gap-4">
-              <div class="flex items-center gap-2">
-                <div class="w-2 h-2 rounded-full bg-green-500"></div>
-                <span>${online}</span>
-              </div>
-              <div class="flex items-center gap-2">
-                <div class="w-2 h-2 rounded-full bg-white/20"></div>
-                <span>${total}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-        <a href="https://discord.gg/${link.inviteCode}" target="_blank" class="bg-[#5865F2] hover:bg-[#4752C4] text-white text-sm font-semibold px-5 py-2 rounded-md transition-colors">
-          Join
-        </a>
-      </div>
-    `;
-    }
-
-    function createYouTubeCard(link) {
-      return `
-      <div class="bg-white/5 border border-white/10 rounded-2xl p-6 flex items-center justify-between feature-card">
-        <div class="flex items-center gap-4">
-          <img src="${link.icon}" alt="YouTube" class="h-20 w-auto object-contain rounded-lg" />
-          <div class="flex flex-col">
-            <span class="text-white text-xl font-semibold leading-none">${link.title}</span>
-            <p class="text-white/70 text-sm mt-1">${link.description}</p>
-          </div>
-        </div>
-        <a href="${link.url}" target="_blank" class="bg-purple-600 hover:bg-purple-700 text-white text-sm font-semibold px-5 py-2 rounded-md transition-colors">
-          Follow
-        </a>
-      </div>
-    `;
-    }
-
-    async function renderSocialLinks() {
-      const container = document.getElementById("social-links");
-      container.innerHTML = "";
-
-      for (const link of links) {
-        if (link.type === "discord") {
-          let iconUrl = link.icon || "images/ogimage.png";
-          let name = "Loading...";
-          let online = "Unavailable";
-          let total = "Unavailable";
-
-          try {
-            const widgetRes = await fetch(`https://discord.com/api/guilds/${link.guildId}/widget.json`);
-            const widgetData = await widgetRes.json();
-            const members = widgetData.members || [];
-            online = `${members.filter(m => ["online", "dnd", "idle"].includes(m.status)).length} Online`;
-
-            // Only override icon if no custom icon is manually set
-            if (!link.icon && widgetData.icon) {
-              iconUrl = `https://cdn.discordapp.com/icons/${link.guildId}/${widgetData.icon}.png`;
-            }
-
-            name = widgetData.name || "G*59 Hub";
-          } catch (e) {
-            console.error("Widget fetch failed:", e);
-          }
-
-          try {
-            const inviteRes = await fetch(`https://discord.com/api/v9/invites/${link.inviteCode}?with_counts=true`);
-            const inviteData = await inviteRes.json();
-            total = `${inviteData.approximate_member_count} Members`;
-          } catch (e) {
-            console.error("Invite fetch failed:", e);
-          }
-
-          container.insertAdjacentHTML("beforeend", createDiscordCard(link, online, total, iconUrl, name));
-        }
-
-        if (link.type === "youtube") {
-          container.insertAdjacentHTML("beforeend", createYouTubeCard(link));
-        }
-      }
-    }
-
-    document.addEventListener("DOMContentLoaded", renderSocialLinks);
-  </script>
-
-
-
-
-
 
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="flex justify-center py-16">
