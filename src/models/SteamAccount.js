@@ -40,6 +40,34 @@ const steamAccountSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    gameRotationEnabled: {
+      type: Boolean,
+      default: false,
+    },
+    gameRotationInterval: {
+      type: Number,
+      default: 3600000,
+    },
+    offlineModeEnabled: {
+      type: Boolean,
+      default: false,
+    },
+    autoRestartEnabled: {
+      type: Boolean,
+      default: false,
+    },
+    scheduledStartTime: {
+      type: String,
+      default: null,
+    },
+    scheduledStopTime: {
+      type: String,
+      default: null,
+    },
+    proxyUrl: {
+      type: String,
+      default: null,
+    },
     createdAt: {
       type: Date,
       default: Date.now,
