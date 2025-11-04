@@ -381,14 +381,16 @@
         let statusDisplay = '⚪ Offline';
         let statusColor = 'text-white/70';
         let statusClickable = '';
+        let isSteamGuardRequired = false;
 
-        if (acc.isRunning) {
-          statusDisplay = '🟢 Online';
-          statusColor = 'text-green-400';
-        } else if (status && status.status === 'STEAM_GUARD_REQUIRED') {
+        if (status && status.status === 'STEAM_GUARD_REQUIRED') {
           statusDisplay = '🔵 Steam Guard Required';
           statusColor = 'text-blue-400 cursor-pointer hover:text-blue-300';
           statusClickable = `onclick="showSteam2FAModalForAccount('${acc.username}')"`;
+          isSteamGuardRequired = true;
+        } else if (acc.isRunning) {
+          statusDisplay = '🟢 Online';
+          statusColor = 'text-green-400';
         }
 
         return `
@@ -400,7 +402,7 @@
             <td class="py-4 px-4 ${statusColor}" ${statusClickable}>${statusDisplay}</td>
             <td class="py-4 px-4">
               <div class="flex gap-2 flex-wrap">
-                <button onclick="startAccount('${acc.username}')" title="Start" class="px-2 py-1 bg-green-500/20 hover:bg-green-500/30 text-green-400 text-xs font-medium rounded transition">▶</button>
+                ${isSteamGuardRequired ? `<button onclick="showSteam2FAModalForAccount('${acc.username}')" title="Enter Steam Guard Code" class="px-2 py-1 bg-blue-500/20 hover:bg-blue-500/30 text-blue-400 text-xs font-medium rounded transition">🔐 2FA</button>` : `<button onclick="startAccount('${acc.username}')" title="Start" class="px-2 py-1 bg-green-500/20 hover:bg-green-500/30 text-green-400 text-xs font-medium rounded transition">▶</button>`}
                 <button onclick="stopAccount('${acc.username}')" title="Stop" class="px-2 py-1 bg-red-500/20 hover:bg-red-500/30 text-red-400 text-xs font-medium rounded transition">⏹</button>
                 <button onclick="openEditGamesModal('${acc.username}')" title="Games" class="px-2 py-1 bg-blue-500/20 hover:bg-blue-500/30 text-blue-400 text-xs font-medium rounded transition">🎮</button>
                 <button onclick="openLogsModal('${acc.username}')" title="Logs" class="px-2 py-1 bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-400 text-xs font-medium rounded transition">📋</button>
