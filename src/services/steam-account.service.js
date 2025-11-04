@@ -78,7 +78,7 @@ class SteamAccountService {
       return await SteamAccount.create({
         userId,
         username,
-        password,
+        password: encrypt(password),
         sharedSecret,
         refreshToken: tokenToBytes(refreshToken),
         games: appIdsToBytes(games),
