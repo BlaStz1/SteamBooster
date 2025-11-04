@@ -253,8 +253,10 @@
     });
 
     socket.on('log-added', (data) => {
-      if (document.getElementById('logs-modal').classList.contains('hidden') === false) {
-        openLogsModal(data.username);
+      const logsDiv = document.getElementById(`logs-${data.username}`);
+      if (logsDiv && !logsDiv.classList.contains('hidden')) {
+        const logsContent = document.getElementById(`logs-content-${data.username}`);
+        loadAccountLogs(data.username, logsContent);
       }
     });
 
