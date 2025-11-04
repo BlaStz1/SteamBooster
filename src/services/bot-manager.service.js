@@ -62,10 +62,13 @@ class BotManagerService {
         refreshToken: account.refreshToken || '',
         onlineStatus: account.onlineStatus,
         games: account.games || [],
+        on2FARequired: () => {
+          this.emitTo2FAModal(userId, username);
+        }
       });
 
       this.bots.set(username, bot);
-      
+
       await AccountLogService.addLog(account._id, 'STATUS_CHANGE', 'Bot starting...', { status: 'starting' });
       bot.start();
 
