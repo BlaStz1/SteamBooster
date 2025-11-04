@@ -255,6 +255,7 @@
 
         document.getElementById('steam-2fa-modal').classList.add('hidden');
         document.getElementById('steam-2fa-form').reset();
+        document.body.style.overflow = '';
         errorDiv.classList.add('hidden');
         loadAccounts();
       } catch (error) {
