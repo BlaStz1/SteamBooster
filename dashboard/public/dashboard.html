@@ -23,7 +23,10 @@
 
   <div id="steam-2fa-modal" class="hidden fixed inset-0 bg-black/50 z-[9999] flex items-center justify-center p-4">
     <div class="bg-[#0e0e10] border border-white/10 rounded-2xl max-w-md w-full p-8 fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-      <h2 class="text-2xl font-bold mb-4">Steam Guard Code Required</h2>
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-2xl font-bold">Steam Guard Code Required</h2>
+        <button type="button" onclick="close2FAModal()" class="text-white/60 hover:text-white text-2xl font-bold">×</button>
+      </div>
       <p class="text-white/70 mb-6" id="steam-2fa-account">Account: <strong id="steam-2fa-account-name">-</strong></p>
       <p class="text-white/60 text-sm mb-6">Enter the 6-digit code from your Steam authenticator or email:</p>
       <form id="steam-2fa-form" class="space-y-4">
