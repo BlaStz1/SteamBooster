@@ -532,9 +532,11 @@
           throw new Error('Failed to delete account');
         }
 
+        showToast(`${username} deleted successfully`, 'success', 3000);
         loadAccounts();
       } catch (error) {
         console.error('Delete account error:', error);
+        showToast('Error deleting account', 'error', 4000);
       }
     }
 
@@ -668,15 +670,17 @@
 
         if (!response.ok) {
           const data = await response.json();
-          alert(data.error || 'Failed to restart account');
+          showToast(data.error || 'Failed to restart account', 'error', 4000);
           return;
         }
 
         const data = await response.json();
 
+        showToast(`${username} restarting...`, 'info', 3000);
         loadAccounts();
       } catch (error) {
         console.error('Restart account error:', error);
+        showToast('Error restarting account', 'error', 4000);
       }
     }
 
@@ -688,20 +692,20 @@
 
         if (!response.ok) {
           const data = await response.json();
-          alert('Health check failed: ' + (data.error || 'Unknown error'));
+          showToast('Health check failed: ' + (data.error || 'Unknown error'), 'error', 4000);
           return;
         }
 
         const data = await response.json();
 
         if (data.healthy) {
-          alert(`✓ ${username} is healthy and ready to boost!`);
+          showToast(`✓ ${username} is healthy and ready to boost!`, 'success', 3000);
         } else {
-          alert(`✗ ${username} has issues: ${data.error}`);
+          showToast(`✗ ${username} has issues: ${data.error}`, 'error', 4000);
         }
       } catch (error) {
         console.error('Health check error:', error);
-        alert('Health check failed');
+        showToast('Health check failed', 'error', 4000);
       }
     }
 
@@ -716,7 +720,7 @@
         });
 
         if (!response.ok) {
-          alert('Failed to load settings');
+          showToast('Failed to load settings', 'error', 4000);
           return;
         }
 
@@ -731,6 +735,7 @@
         document.getElementById('proxy-url').value = settings.proxyUrl || '';
       } catch (error) {
         console.error('Load settings error:', error);
+        showToast('Error loading settings', 'error', 4000);
       }
 
       document.getElementById('account-settings-modal').classList.remove('hidden');
