@@ -480,9 +480,45 @@
         }
 
         loadAccounts();
+
+        setTimeout(() => {
+          checkAccountStatus(username);
+        }, 2000);
       } catch (error) {
         console.error('Start account error:', error);
+        alert('Error starting account: ' + error.message);
       }
+    }
+
+    async function checkAccountStatus(username) {
+      try {
+        const response = await fetch(`/api/accounts/${username}/status`, {
+          headers: { 'Authorization': `Bearer ${token}` },
+        });
+
+        if (!response.ok) return;
+
+        const status = await response.json();
+
+        if (status.status === 'STEAM_GUARD_REQUIRED' || status.status.includes('STEAM_GUARD')) {
+          showSteam2FAModal(username);
+        } else if (!status.isRunning && status.error) {
+          console.warn(`Account ${username} has error: ${status.error}`);
+        }
+      } catch (error) {
+        console.error('Status check error:', error);
+      }
+    }
+
+    function showSteam2FAModal(username) {
+      currentEditingAccount = username;
+      document.getElementById('steam-2fa-account-name').textContent = username;
+      document.getElementById('steam-2fa-code').value = '';
+      document.getElementById('steam-2fa-error').classList.add('hidden');
+      document.getElementById('steam-2fa-modal').classList.remove('hidden');
+      document.getElementById('steam-2fa-code').focus();
+
+      document.body.style.overflow = 'hidden';
     }
 
     async function stopAccount(username) {
