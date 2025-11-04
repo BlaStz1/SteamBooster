@@ -6,6 +6,39 @@ const { decrypt } = require('../utils/crypto.util');
 
 class BotManagerService {
   static bots = new Map();
+  static io = null;
+  static userSessions = new Map();
+
+  static setIO(ioInstance) {
+    this.io = ioInstance;
+  }
+
+  static registerUserSession(userId, socketId) {
+    if (!this.userSessions.has(userId)) {
+      this.userSessions.set(userId, []);
+    }
+    this.userSessions.get(userId).push(socketId);
+  }
+
+  static unregisterUserSession(userId, socketId) {
+    if (this.userSessions.has(userId)) {
+      const sockets = this.userSessions.get(userId);
+      const index = sockets.indexOf(socketId);
+      if (index > -1) sockets.splice(index, 1);
+      if (sockets.length === 0) this.userSessions.delete(userId);
+    }
+  }
+
+  static emitTo2FAModal(userId, username) {
+    if (!this.io) return;
+
+    const socketIds = this.userSessions.get(userId);
+    if (!socketIds) return;
+
+    socketIds.forEach(socketId => {
+      this.io.to(socketId).emit('show-2fa-modal', { username });
+    });
+  }
 
   static async startBot(userId, username) {
     try {
