@@ -112,17 +112,29 @@
   </div>
 
   <div id="edit-games-modal" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-    <div class="bg-[#0e0e10] border border-white/10 rounded-2xl max-w-md w-full p-8">
-      <h2 class="text-2xl font-bold mb-6">Edit Games</h2>
-      <form id="edit-games-form" class="space-y-4">
+    <div class="bg-[#0e0e10] border border-white/10 rounded-2xl max-w-2xl w-full p-8 max-h-[80vh] overflow-y-auto">
+      <div class="flex justify-between items-center mb-6">
+        <h2 class="text-2xl font-bold">Edit Games</h2>
+        <button type="button" onclick="closeEditGamesModal()" class="text-white/60 hover:text-white text-2xl">×</button>
+      </div>
+      <form id="edit-games-form" class="space-y-6">
         <div>
-          <label class="block text-white/70 mb-2 text-sm font-medium">Game App IDs (comma-separated)</label>
-          <input id="edit-game-ids" type="text" placeholder="570,730,440"
-            class="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-red-500">
+          <label class="block text-white/70 mb-3 text-sm font-medium">Search & Add Games</label>
+          <input id="game-search-input" type="text" placeholder="Search game name or enter App ID (e.g., 570, Dota, CS:GO)"
+            class="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-red-500 mb-4">
+          <div id="game-search-results" class="grid grid-cols-2 gap-2 max-h-[300px] overflow-y-auto"></div>
         </div>
+
+        <div>
+          <label class="block text-white/70 mb-3 text-sm font-medium">Selected Games</label>
+          <div id="selected-games-container" class="grid grid-cols-3 gap-3 bg-white/5 p-4 rounded-lg border border-white/10 min-h-[150px]">
+            <p class="text-white/50 text-sm col-span-3 text-center py-8">No games selected</p>
+          </div>
+        </div>
+
         <div id="edit-games-error" class="hidden bg-red-500/20 border border-red-500/40 text-red-300 text-sm p-3 rounded-lg"></div>
         <div class="flex gap-4">
-          <button type="submit" class="flex-1 py-2 bg-red-500 hover:bg-red-600 rounded-lg font-semibold transition">Save</button>
+          <button type="submit" class="flex-1 py-2 bg-red-500 hover:bg-red-600 rounded-lg font-semibold transition">Save Games</button>
           <button type="button" onclick="closeEditGamesModal()" class="flex-1 py-2 bg-white/10 hover:bg-white/20 rounded-lg font-semibold transition">Cancel</button>
         </div>
       </form>
