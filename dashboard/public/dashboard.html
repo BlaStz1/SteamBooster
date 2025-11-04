@@ -198,7 +198,44 @@
   </div>
 
   <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+  <style>
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      padding: 16px 20px;
+      border-radius: 8px;
+      z-index: [10000];
+      animation: slideIn 0.3s ease-out;
+      max-width: 400px;
+    }
+    .toast-error { background: #dc2626; color: white; border: 1px solid #991b1b; }
+    .toast-success { background: #16a34a; color: white; border: 1px solid #15803d; }
+    .toast-info { background: #0ea5e9; color: white; border: 1px solid #0284c7; }
+    @keyframes slideIn {
+      from { transform: translateX(420px); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+    @keyframes slideOut {
+      from { transform: translateX(0); opacity: 1; }
+      to { transform: translateX(420px); opacity: 0; }
+    }
+    .toast.hide { animation: slideOut 0.3s ease-out forwards; }
+  </style>
+
   <script>
+    function showToast(message, type = 'info', duration = 3000) {
+      const container = document.createElement('div');
+      container.className = `toast toast-${type}`;
+      container.textContent = message;
+      document.body.appendChild(container);
+
+      setTimeout(() => {
+        container.classList.add('hide');
+        setTimeout(() => container.remove(), 300);
+      }, duration);
+    }
+
     const token = localStorage.getItem('token');
     const user = JSON.parse(localStorage.getItem('user') || '{}');
 
