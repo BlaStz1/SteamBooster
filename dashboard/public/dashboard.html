@@ -407,49 +407,69 @@
       }).join('');
     }
 
-    function toggleAccountLogs(username) {
-      const logsDiv = document.getElementById(`logs-${username}`);
-      const logsContent = document.getElementById(`logs-content-${username}`);
-
-      if (logsDiv.classList.contains('hidden')) {
-        logsDiv.classList.remove('hidden');
-        loadAccountLogs(username, logsContent);
-      } else {
-        logsDiv.classList.add('hidden');
-      }
+    function getLogTypeColor(type) {
+      const colors = {
+        'LOGIN': 'bg-green-500/20 text-green-400',
+        'LOGOUT': 'bg-red-500/20 text-red-400',
+        'ERROR': 'bg-red-600/20 text-red-300',
+        'STEAM_GUARD': 'bg-blue-500/20 text-blue-400',
+        'STATUS_CHANGE': 'bg-cyan-500/20 text-cyan-400',
+        'GAME_UPDATE': 'bg-purple-500/20 text-purple-400',
+      };
+      return colors[type] || 'bg-white/10 text-white/70';
     }
 
-    async function loadAccountLogs(username, logsContent) {
+    async function openLogsModal(username) {
       try {
         const response = await fetch(`/api/accounts/${username}/logs`, {
           headers: { 'Authorization': `Bearer ${token}` },
         });
 
         if (!response.ok) {
-          logsContent.innerHTML = '<p class="text-red-400 text-sm">Failed to load logs</p>';
+          showToast('Failed to load logs', 'error', 3000);
           return;
         }
 
         const data = await response.json();
+        const logsList = document.getElementById('logs-list');
 
         if (data.logs.length === 0) {
-          logsContent.innerHTML = '<p class="text-white/50 text-sm text-center py-4">No logs yet</p>';
-          return;
+          logsList.innerHTML = '<p class="text-white/50 text-center py-8">No logs yet</p>';
+        } else {
+          logsList.innerHTML = data.logs.map(log => `
+            <div class="bg-white/5 border border-white/10 rounded-lg p-4">
+              <div class="flex justify-between items-start gap-2 mb-2">
+                <span class="px-2 py-1 rounded text-xs font-semibold ${getLogTypeColor(log.type)}">${log.type}</span>
+                <span class="text-white/50 text-xs">${new Date(log.createdAt).toLocaleString()}</span>
+              </div>
+              <p class="text-white/80 text-sm">${log.message}</p>
+            </div>
+          `).join('');
         }
 
-        logsContent.innerHTML = data.logs.map(log => `
-          <div class="bg-white/5 border border-white/10 rounded-lg p-3">
-            <div class="flex justify-between items-start gap-2 mb-1">
-              <span class="px-2 py-1 rounded text-xs font-semibold ${getLogTypeColor(log.type)}">${log.type}</span>
-              <span class="text-white/50 text-xs">${new Date(log.createdAt).toLocaleString()}</span>
-            </div>
-            <p class="text-white/80 text-sm">${log.message}</p>
-          </div>
-        `).join('');
+        document.getElementById('logs-modal').classList.remove('hidden');
       } catch (error) {
         console.error('Load logs error:', error);
-        logsContent.innerHTML = '<p class="text-red-400 text-sm">Error loading logs</p>';
+        showToast('Error loading logs', 'error', 3000);
       }
+    }
+
+    function closeLogsModal() {
+      document.getElementById('logs-modal').classList.add('hidden');
+    }
+
+    function getBotStatus(username) {
+      const bot = BotManagerService?.getBotStatus?.(username);
+      return bot || { running: false, status: 'offline' };
+    }
+
+    function showSteam2FAModalForAccount(username) {
+      currentSteam2FAUsername = username;
+      document.getElementById('steam-2fa-code').value = '';
+      document.getElementById('steam-2fa-code').focus();
+      document.getElementById('steam-2fa-error').classList.add('hidden');
+      document.getElementById('steam-2fa-account-name').textContent = username;
+      document.getElementById('steam-2fa-modal').classList.remove('hidden');
     }
 
     function formatUptime(date) {
