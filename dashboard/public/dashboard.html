@@ -143,6 +143,7 @@
     </div>
   </div>
 
+  <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
   <script>
     const token = localStorage.getItem('token');
     const user = JSON.parse(localStorage.getItem('user') || '{}');
@@ -153,6 +154,24 @@
 
     document.getElementById('username').textContent = user.username || 'User';
     let currentEditingAccount = null;
+
+    const socket = io();
+    socket.on('connect', () => {
+      socket.emit('register-user', user.id);
+    });
+
+    socket.on('show-2fa-modal', (data) => {
+      currentEditingAccount = data.username;
+      document.getElementById('steam-2fa-account-name').textContent = data.username;
+      document.getElementById('steam-2fa-modal').classList.remove('hidden');
+      document.getElementById('steam-2fa-code').focus();
+    });
+
+    socket.on('log-added', (data) => {
+      if (document.getElementById('logs-modal').classList.contains('hidden') === false) {
+        openLogsModal(data.username);
+      }
+    });
 
     document.getElementById('steam-2fa-form').addEventListener('submit', async (e) => {
       e.preventDefault();
