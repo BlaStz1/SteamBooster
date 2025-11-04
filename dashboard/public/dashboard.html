@@ -333,9 +333,17 @@
           return;
         }
 
+        console.log('Loading accounts with token:', token.substring(0, 20) + '...');
+
         const response = await fetch('/api/accounts', {
-          headers: { 'Authorization': `Bearer ${token}` },
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
         });
+
+        console.log('Response status:', response.status);
 
         if (!response.ok) {
           const errorData = await response.json().catch(() => ({}));
@@ -348,14 +356,17 @@
             return;
           }
 
-          throw new Error(errorData.error || 'Failed to load accounts');
+          throw new Error(errorData.error || `Failed to load accounts (${response.status})`);
         }
 
         const accounts = await response.json();
+        console.log('Loaded accounts:', accounts);
         renderAccounts(accounts);
         updateStats(accounts);
       } catch (error) {
-        console.error('Load accounts error:', error);
+        console.error('Load accounts error:', error.message);
+        console.error('Full error:', error);
+        showToast('Failed to load accounts: ' + error.message, 'error', 5000);
       }
     }
 
