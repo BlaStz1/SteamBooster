@@ -215,10 +215,7 @@
     });
 
     socket.on('show-2fa-modal', (data) => {
-      currentEditingAccount = data.username;
-      document.getElementById('steam-2fa-account-name').textContent = data.username;
-      document.getElementById('steam-2fa-modal').classList.remove('hidden');
-      document.getElementById('steam-2fa-code').focus();
+      showSteam2FAModal(data.username);
     });
 
     socket.on('log-added', (data) => {
