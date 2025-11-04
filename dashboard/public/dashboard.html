@@ -904,31 +904,6 @@
       }
     }
 
-    async function healthCheck(username) {
-      try {
-        const response = await fetch(`/api/accounts/${username}/health-check`, {
-          headers: { 'Authorization': `Bearer ${token}` },
-        });
-
-        if (!response.ok) {
-          const data = await response.json();
-          showToast('Health check failed: ' + (data.error || 'Unknown error'), 'error', 4000);
-          return;
-        }
-
-        const data = await response.json();
-
-        if (data.healthy) {
-          showToast(`✓ ${username} is healthy and ready to boost!`, 'success', 3000);
-        } else {
-          showToast(`✗ ${username} has issues: ${data.error}`, 'error', 4000);
-        }
-      } catch (error) {
-        console.error('Health check error:', error);
-        showToast('Health check failed', 'error', 4000);
-      }
-    }
-
     let settingsAccountUsername = null;
 
     async function openSettingsModal(username) {
