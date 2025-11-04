@@ -11,10 +11,12 @@ const { USER_TIERS } = require('../constants');
 
 router.get('/', async (req, res) => {
   try {
+    logger.info(`Getting accounts for user: ${req.user._id}`);
     const accounts = await SteamAccountService.getAll(req.user._id);
+    logger.info(`Successfully retrieved ${accounts.length} accounts for user: ${req.user._id}`);
     res.status(200).json(accounts);
   } catch (error) {
-    logger.error('Get accounts error:', error);
+    logger.error('Get accounts error:', error.message, error);
     res.status(500).json({ error: error.message });
   }
 });
