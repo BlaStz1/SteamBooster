@@ -293,6 +293,98 @@ class SteamAccountService {
       throw new Error('Failed to get games count');
     }
   }
+
+  static async setGameRotation(steamUsername, enabled, interval = 3600000) {
+    try {
+      return await SteamAccount.findOneAndUpdate(
+        { username: steamUsername },
+        {
+          gameRotationEnabled: enabled,
+          gameRotationInterval: interval
+        },
+        { new: true }
+      );
+    } catch (error) {
+      logger.error(error);
+      throw new Error('Failed to set game rotation');
+    }
+  }
+
+  static async setOfflineMode(steamUsername, enabled) {
+    try {
+      return await SteamAccount.findOneAndUpdate(
+        { username: steamUsername },
+        { offlineModeEnabled: enabled },
+        { new: true }
+      );
+    } catch (error) {
+      logger.error(error);
+      throw new Error('Failed to set offline mode');
+    }
+  }
+
+  static async setAutoRestart(steamUsername, enabled) {
+    try {
+      return await SteamAccount.findOneAndUpdate(
+        { username: steamUsername },
+        { autoRestartEnabled: enabled },
+        { new: true }
+      );
+    } catch (error) {
+      logger.error(error);
+      throw new Error('Failed to set auto restart');
+    }
+  }
+
+  static async setScheduledTimes(steamUsername, startTime, stopTime) {
+    try {
+      return await SteamAccount.findOneAndUpdate(
+        { username: steamUsername },
+        {
+          scheduledStartTime: startTime,
+          scheduledStopTime: stopTime
+        },
+        { new: true }
+      );
+    } catch (error) {
+      logger.error(error);
+      throw new Error('Failed to set scheduled times');
+    }
+  }
+
+  static async setProxyUrl(steamUsername, proxyUrl) {
+    try {
+      return await SteamAccount.findOneAndUpdate(
+        { username: steamUsername },
+        { proxyUrl },
+        { new: true }
+      );
+    } catch (error) {
+      logger.error(error);
+      throw new Error('Failed to set proxy URL');
+    }
+  }
+
+  static async getAccountSettings(steamUsername) {
+    try {
+      const account = await SteamAccount.findOne({ username: steamUsername });
+      if (!account) return null;
+
+      return {
+        gameRotationEnabled: account.gameRotationEnabled,
+        gameRotationInterval: account.gameRotationInterval,
+        offlineModeEnabled: account.offlineModeEnabled,
+        autoRestartEnabled: account.autoRestartEnabled,
+        scheduledStartTime: account.scheduledStartTime,
+        scheduledStopTime: account.scheduledStopTime,
+        proxyUrl: account.proxyUrl,
+        onlineStatus: account.onlineStatus,
+      };
+    } catch (error) {
+      logger.error(error);
+      throw new Error('Failed to get account settings');
+    }
+  }
 }
 
 module.exports = SteamAccountService;
