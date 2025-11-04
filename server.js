@@ -75,6 +75,7 @@ io.on('connection', (socket) => {
 
   socket.on('register-user', (userId) => {
     userConnections[userId] = socket.id;
+    BotManagerService.registerUserSession(userId, socket.id);
   });
 
   socket.on('request-2fa', (data) => {
@@ -94,6 +95,7 @@ io.on('connection', (socket) => {
   socket.on('disconnect', () => {
     for (const userId in userConnections) {
       if (userConnections[userId] === socket.id) {
+        BotManagerService.unregisterUserSession(userId, socket.id);
         delete userConnections[userId];
       }
     }
