@@ -460,9 +460,14 @@
       document.getElementById('logs-modal').classList.add('hidden');
     }
 
+    let accountStatuses = {};
+
     function getBotStatus(username) {
-      const bot = BotManagerService?.getBotStatus?.(username);
-      return bot || { running: false, status: 'offline' };
+      return accountStatuses[username] || { running: false, status: 'offline' };
+    }
+
+    function setBotStatus(username, status) {
+      accountStatuses[username] = status;
     }
 
     function showSteam2FAModalForAccount(username) {
