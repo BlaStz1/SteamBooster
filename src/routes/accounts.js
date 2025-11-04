@@ -105,12 +105,22 @@ router.put('/:username/games', async (req, res) => {
       return res.status(400).json({ error: 'Games must be an array of app IDs' });
     }
 
+    const userTier = req.user.tier || 'free';
+    const tierLimits = USER_TIERS[userTier.toUpperCase()];
+
+    if (games.length > tierLimits.maxSteamGames) {
+      return res.status(400).json({
+        error: `You can only idle a maximum of ${tierLimits.maxSteamGames} games for your tier`,
+      });
+    }
+
     const account = await SteamAccountService.getAccount(req.user._id, username);
     if (!account) {
       return res.status(404).json({ error: 'Account not found' });
     }
 
     await SteamAccountService.setGames(username, games);
+    await AccountLogService.addLog(account._id, 'GAME_UPDATE', `Games updated to: ${games.join(', ')}`, { gameCount: games.length });
 
     res.status(200).json({ message: 'Games updated successfully' });
   } catch (error) {
