@@ -66,11 +66,19 @@
           body: JSON.stringify({ email, password }),
         });
 
-        const data = await response.json();
-
         if (!response.ok) {
+          const data = await response.json();
           errorDiv.textContent = data.error || 'Login failed';
           errorDiv.classList.remove('hidden');
+          return;
+        }
+
+        const data = await response.json();
+
+        if (!data.token || !data.user) {
+          errorDiv.textContent = 'Invalid response from server';
+          errorDiv.classList.remove('hidden');
+          console.error('Invalid login response:', data);
           return;
         }
 
