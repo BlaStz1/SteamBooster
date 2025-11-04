@@ -380,6 +380,10 @@ async #flushIdle() {
 
   onSteamGuardAuth() {
     this.setStatus(STEAM_BOT_STATUS.STEAM_GUARD_REQUIRED);
+    this.logMessage('Steam Guard authentication required');
+    if (this.on2FARequired) {
+      this.on2FARequired();
+    }
     this.start();
   }
 
