@@ -483,6 +483,10 @@
       document.getElementById('steam-2fa-modal').classList.remove('hidden');
     }
 
+    function showSteamGuardInput(username) {
+      showSteam2FAModalForAccount(username);
+    }
+
     function formatUptime(date) {
       const now = new Date();
       const diff = now - date;
