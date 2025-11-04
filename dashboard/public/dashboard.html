@@ -473,13 +473,13 @@
           headers: { 'Authorization': `Bearer ${token}` },
         });
 
-        const data = await response.json();
-
         if (!response.ok) {
+          const data = await response.json();
           alert(data.error || 'Failed to start account');
           return;
         }
 
+        const data = await response.json();
         loadAccounts();
 
         setTimeout(() => {
