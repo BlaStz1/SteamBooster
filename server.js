@@ -43,9 +43,12 @@ app.use(express.static(path.join(__dirname, 'dashboard/public')));
 
 const authRoutes = require('./src/routes/auth');
 const accountRoutes = require('./src/routes/accounts');
+const BotManagerService = require('./src/services/bot-manager.service');
 
 app.use('/api/auth', authRoutes);
 app.use('/api/accounts', authMiddleware, accountRoutes);
+
+BotManagerService.setIO(io);
 
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'dashboard/public/index.html'));
