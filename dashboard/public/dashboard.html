@@ -298,6 +298,14 @@
         .map(id => parseInt(id.trim()))
         .filter(id => !isNaN(id));
 
+      const errorDiv = document.getElementById('edit-games-error');
+
+      if (gameIds.length > 15) {
+        errorDiv.textContent = 'Maximum 15 games allowed per account';
+        errorDiv.classList.remove('hidden');
+        return;
+      }
+
       try {
         const response = await fetch(`/api/accounts/${currentEditingAccount}/games`, {
           method: 'PUT',
@@ -308,14 +316,20 @@
           body: JSON.stringify({ games: gameIds }),
         });
 
+        const data = await response.json();
+
         if (!response.ok) {
-          throw new Error('Failed to update games');
+          errorDiv.textContent = data.error || 'Failed to update games';
+          errorDiv.classList.remove('hidden');
+          return;
         }
 
         closeEditGamesModal();
         loadAccounts();
       } catch (error) {
         console.error('Edit games error:', error);
+        errorDiv.textContent = 'An error occurred. Please try again.';
+        errorDiv.classList.remove('hidden');
       }
     });
 
