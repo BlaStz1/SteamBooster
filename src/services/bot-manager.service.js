@@ -70,11 +70,16 @@ class BotManagerService {
       this.bots.set(username, bot);
 
       await AccountLogService.addLog(account._id, 'STATUS_CHANGE', 'Bot starting...', { status: 'starting' });
-      bot.start();
+
+      bot.start().catch(error => {
+        logger.error(`Bot error for ${username}:`, error);
+        this.bots.delete(username);
+      });
 
       return { message: 'Bot started successfully' };
     } catch (error) {
       logger.error(`Error starting bot for ${username}:`, error);
+      this.bots.delete(username);
       return { error: error.message };
     }
   }
