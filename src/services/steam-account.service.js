@@ -255,6 +255,44 @@ class SteamAccountService {
       throw new Error('Failed to set refresh token for Steam account in database');
     }
   }
+
+  static async checkAccountLimits(userId, maxAccounts) {
+    try {
+      const accountCount = await SteamAccount.countDocuments({ userId });
+      return accountCount < maxAccounts;
+    } catch (error) {
+      logger.error(error);
+      throw new Error('Failed to check account limits');
+    }
+  }
+
+  static async checkGameLimits(steamAccountId, maxGames) {
+    try {
+      const gameCount = await BoostedGameUser.countDocuments({ steamAccountId });
+      return gameCount < maxGames;
+    } catch (error) {
+      logger.error(error);
+      throw new Error('Failed to check game limits');
+    }
+  }
+
+  static async getAccountsCount(userId) {
+    try {
+      return await SteamAccount.countDocuments({ userId });
+    } catch (error) {
+      logger.error(error);
+      throw new Error('Failed to get accounts count');
+    }
+  }
+
+  static async getGamesCount(steamAccountId) {
+    try {
+      return await BoostedGameUser.countDocuments({ steamAccountId });
+    } catch (error) {
+      logger.error(error);
+      throw new Error('Failed to get games count');
+    }
+  }
 }
 
 module.exports = SteamAccountService;
