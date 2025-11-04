@@ -65,10 +65,35 @@ app.get('/dashboard', (req, res) => {
 
 io.use((socket, next) => sessionMiddleware(socket.request, {}, next));
 
+const userConnections = {};
+
 io.on('connection', (socket) => {
   logger.info(`User connected: ${socket.id}`);
 
+  socket.on('register-user', (userId) => {
+    userConnections[userId] = socket.id;
+  });
+
+  socket.on('request-2fa', (data) => {
+    const { userId, username } = data;
+    if (userConnections[userId]) {
+      io.to(userConnections[userId]).emit('show-2fa-modal', { username });
+    }
+  });
+
+  socket.on('account-log', (data) => {
+    const { userId } = data;
+    if (userConnections[userId]) {
+      io.to(userConnections[userId]).emit('log-added', data);
+    }
+  });
+
   socket.on('disconnect', () => {
+    for (const userId in userConnections) {
+      if (userConnections[userId] === socket.id) {
+        delete userConnections[userId];
+      }
+    }
     logger.info(`User disconnected: ${socket.id}`);
   });
 });
