@@ -451,14 +451,96 @@
       document.getElementById('add-account-form').reset();
     }
 
+    let selectedGames = new Map();
+    const popularGames = [
+      { appid: 570, name: 'Dota 2' },
+      { appid: 730, name: 'Counter-Strike 2' },
+      { appid: 440, name: 'Team Fortress 2' },
+      { appid: 252490, name: 'Rust' },
+      { appid: 813820, name: 'Lost Ark' },
+      { appid: 1313860, name: 'Core Keeper' },
+      { appid: 1516360, name: 'V Rising' },
+      { appid: 1499320, name: 'Valheim' },
+      { appid: 431960, name: 'Wallpaper Engine' },
+      { appid: 221540, name: 'Unturned' },
+      { appid: 108600, name: 'Project Zomboid' },
+      { appid: 1222670, name: 'Grounded' },
+      { appid: 976310, name: 'Realm Royale' },
+      { appid: 1058020, name: 'Project Winter' },
+      { appid: 1340540, name: 'Valheim' },
+    ];
+
     function openEditGamesModal(username) {
       currentEditingAccount = username;
+      selectedGames.clear();
+
+      fetch(`/api/accounts/${username}`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      }).then(r => r.json()).then(acc => {
+        if (acc.games && acc.games.length > 0) {
+          acc.games.forEach(appid => selectedGames.set(appid, `App ${appid}`));
+        }
+        renderSelectedGames();
+      });
+
+      document.getElementById('game-search-input').value = '';
+      document.getElementById('game-search-results').innerHTML = '';
+      renderPopularGames();
       document.getElementById('edit-games-modal').classList.remove('hidden');
+    }
+
+    function renderPopularGames() {
+      const container = document.getElementById('game-search-results');
+      container.innerHTML = popularGames.map(game => `
+        <div onclick="toggleGameSelection(${game.appid}, '${game.name}', this)"
+          class="game-card bg-white/10 hover:bg-white/20 border border-white/20 rounded-lg p-2 cursor-pointer transition ${selectedGames.has(game.appid) ? 'border-red-500 bg-red-500/10' : ''}">
+          <img src="https://steamcdn-a.akamaihd.net/steam/apps/${game.appid}/header.jpg" alt="${game.name}" class="w-full h-16 object-cover rounded mb-1">
+          <p class="text-white text-xs font-medium truncate">${game.name}</p>
+        </div>
+      `).join('');
+    }
+
+    function toggleGameSelection(appid, name, element) {
+      if (selectedGames.has(appid)) {
+        selectedGames.delete(appid);
+        element.classList.remove('border-red-500', 'bg-red-500/10');
+        element.classList.add('border-white/20');
+      } else {
+        if (selectedGames.size >= 15) {
+          showToast('Maximum 15 games allowed', 'error', 3000);
+          return;
+        }
+        selectedGames.set(appid, name);
+        element.classList.add('border-red-500', 'bg-red-500/10');
+        element.classList.remove('border-white/20');
+      }
+      renderSelectedGames();
+    }
+
+    function renderSelectedGames() {
+      const container = document.getElementById('selected-games-container');
+      if (selectedGames.size === 0) {
+        container.innerHTML = '<p class="text-white/50 text-sm col-span-3 text-center py-8">No games selected</p>';
+        return;
+      }
+
+      container.innerHTML = Array.from(selectedGames.entries()).map(([appid, name]) => `
+        <div class="relative group">
+          <img src="https://steamcdn-a.akamaihd.net/steam/apps/${appid}/header.jpg" alt="${name}" class="w-full h-20 object-cover rounded">
+          <button type="button" onclick="event.preventDefault(); removeGameSelection(${appid})" class="absolute top-1 right-1 bg-red-600 hover:bg-red-700 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold opacity-0 group-hover:opacity-100 transition">×</button>
+        </div>
+      `).join('');
+    }
+
+    function removeGameSelection(appid) {
+      selectedGames.delete(appid);
+      renderSelectedGames();
     }
 
     function closeEditGamesModal() {
       document.getElementById('edit-games-modal').classList.add('hidden');
       document.getElementById('edit-games-form').reset();
+      selectedGames.clear();
     }
 
     document.getElementById('add-account-form').addEventListener('submit', async (e) => {
