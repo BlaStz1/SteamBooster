@@ -352,6 +352,100 @@
       }
     }
 
+    async function startAccount(username) {
+      try {
+        const response = await fetch(`/api/accounts/${username}/start`, {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${token}` },
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          alert(data.error || 'Failed to start account');
+          return;
+        }
+
+        loadAccounts();
+      } catch (error) {
+        console.error('Start account error:', error);
+      }
+    }
+
+    async function stopAccount(username) {
+      try {
+        const response = await fetch(`/api/accounts/${username}/stop`, {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${token}` },
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          alert(data.error || 'Failed to stop account');
+          return;
+        }
+
+        loadAccounts();
+      } catch (error) {
+        console.error('Stop account error:', error);
+      }
+    }
+
+    async function openLogsModal(username) {
+      currentEditingAccount = username;
+      document.getElementById('logs-modal').classList.remove('hidden');
+
+      try {
+        const response = await fetch(`/api/accounts/${username}/logs`, {
+          headers: { 'Authorization': `Bearer ${token}` },
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error('Failed to load logs');
+        }
+
+        const logsList = document.getElementById('logs-list');
+        if (data.logs.length === 0) {
+          logsList.innerHTML = '<p class="text-white/50 text-center py-8">No logs yet</p>';
+          return;
+        }
+
+        logsList.innerHTML = data.logs.map(log => `
+          <div class="bg-white/5 border border-white/10 rounded-lg p-4">
+            <div class="flex justify-between items-start mb-2">
+              <span class="px-2 py-1 rounded text-xs font-semibold ${getLogTypeColor(log.type)}">${log.type}</span>
+              <span class="text-white/50 text-xs">${new Date(log.createdAt).toLocaleString()}</span>
+            </div>
+            <p class="text-white/80">${log.message}</p>
+          </div>
+        `).join('');
+      } catch (error) {
+        console.error('Load logs error:', error);
+        document.getElementById('logs-list').innerHTML = '<p class="text-red-400 text-center py-8">Failed to load logs</p>';
+      }
+    }
+
+    function closeLogsModal() {
+      document.getElementById('logs-modal').classList.add('hidden');
+    }
+
+    function getLogTypeColor(type) {
+      const colors = {
+        'LOGIN': 'bg-green-500/20 text-green-400',
+        'LOGOUT': 'bg-blue-500/20 text-blue-400',
+        'ERROR': 'bg-red-500/20 text-red-400',
+        'STEAM_GUARD': 'bg-yellow-500/20 text-yellow-400',
+        'VAC_BAN': 'bg-red-600/20 text-red-300',
+        'STATUS_CHANGE': 'bg-purple-500/20 text-purple-400',
+        'GAME_UPDATE': 'bg-cyan-500/20 text-cyan-400',
+        'INFO': 'bg-white/10 text-white/70',
+      };
+      return colors[type] || colors['INFO'];
+    }
+
     function logout() {
       localStorage.removeItem('token');
       localStorage.removeItem('user');
