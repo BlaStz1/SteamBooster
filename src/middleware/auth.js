@@ -3,9 +3,19 @@ const { logger } = require('../helpers/logger.helper');
 
 const authMiddleware = async (req, res, next) => {
   try {
-    const token = req.headers.authorization?.split(' ')[1];
+    const authHeader = req.headers.authorization;
+    if (!authHeader) {
+      return res.status(401).json({ error: 'No authorization header' });
+    }
+
+    const token = authHeader.split(' ')[1];
     if (!token) {
-      return res.status(401).json({ error: 'No token provided' });
+      return res.status(401).json({ error: 'No token in authorization header' });
+    }
+
+    if (!process.env.JWT_SECRET) {
+      logger.error('JWT_SECRET not configured');
+      return res.status(500).json({ error: 'Server configuration error' });
     }
 
     const decoded = AuthService.verifyToken(token);
@@ -18,7 +28,7 @@ const authMiddleware = async (req, res, next) => {
     req.user = user;
     next();
   } catch (error) {
-    logger.error('Auth middleware error:', error);
+    logger.error('Auth middleware error:', error.message);
     res.status(401).json({ error: 'Invalid token' });
   }
 };
