@@ -543,6 +543,34 @@
       selectedGames.clear();
     }
 
+    document.getElementById('game-search-input').addEventListener('input', async (e) => {
+      const query = e.target.value.trim().toLowerCase();
+      const container = document.getElementById('game-search-results');
+
+      if (!query) {
+        renderPopularGames();
+        return;
+      }
+
+      const filtered = popularGames.filter(g =>
+        g.name.toLowerCase().includes(query) ||
+        g.appid.toString().includes(query)
+      );
+
+      if (filtered.length === 0) {
+        container.innerHTML = '<p class="col-span-2 text-white/50 text-center py-4 text-sm">No games found</p>';
+        return;
+      }
+
+      container.innerHTML = filtered.map(game => `
+        <div onclick="toggleGameSelection(${game.appid}, '${game.name}', this)"
+          class="game-card bg-white/10 hover:bg-white/20 border border-white/20 rounded-lg p-2 cursor-pointer transition ${selectedGames.has(game.appid) ? 'border-red-500 bg-red-500/10' : ''}">
+          <img src="https://steamcdn-a.akamaihd.net/steam/apps/${game.appid}/header.jpg" alt="${game.name}" class="w-full h-16 object-cover rounded mb-1">
+          <p class="text-white text-xs font-medium truncate">${game.name}</p>
+        </div>
+      `).join('');
+    });
+
     document.getElementById('add-account-form').addEventListener('submit', async (e) => {
       e.preventDefault();
       const username = document.getElementById('steam-username').value;
