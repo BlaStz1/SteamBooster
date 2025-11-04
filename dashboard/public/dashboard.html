@@ -573,7 +573,7 @@
 
     document.getElementById('add-account-form').addEventListener('submit', async (e) => {
       e.preventDefault();
-      const username = document.getElementById('steam-username').value;
+      const username = document.getElementById('steam-username').value.trim();
       const password = document.getElementById('steam-password').value;
       const gameIds = document.getElementById('game-ids').value
         .split(',')
@@ -581,6 +581,31 @@
         .filter(id => !isNaN(id));
 
       const errorDiv = document.getElementById('add-account-error');
+      errorDiv.classList.add('hidden');
+
+      // Validate username
+      if (!username) {
+        errorDiv.textContent = 'Username is required';
+        errorDiv.classList.remove('hidden');
+        return;
+      }
+      if (!/^[a-zA-Z0-9_-]{3,32}$/.test(username)) {
+        errorDiv.textContent = 'Username must be 3-32 characters and contain only letters, numbers, underscores, and hyphens';
+        errorDiv.classList.remove('hidden');
+        return;
+      }
+
+      // Validate password
+      if (!password) {
+        errorDiv.textContent = 'Password is required';
+        errorDiv.classList.remove('hidden');
+        return;
+      }
+      if (password.length < 6) {
+        errorDiv.textContent = 'Password must be at least 6 characters';
+        errorDiv.classList.remove('hidden');
+        return;
+      }
 
       if (gameIds.length > 15) {
         errorDiv.textContent = 'Maximum 15 games allowed per account';
@@ -607,6 +632,7 @@
 
         const data = await response.json();
 
+        showToast(`Account ${username} added successfully`, 'success', 3000);
         closeAddAccountModal();
         loadAccounts();
       } catch (error) {
