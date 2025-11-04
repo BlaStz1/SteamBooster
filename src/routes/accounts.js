@@ -19,6 +19,64 @@ router.get('/', async (req, res) => {
   }
 });
 
+// BATCH ROUTES - MUST BE BEFORE :username ROUTES
+router.post('/batch/start', async (req, res) => {
+  try {
+    const { usernames = [] } = req.body;
+
+    if (!Array.isArray(usernames) || usernames.length === 0) {
+      return res.status(400).json({ error: 'No usernames provided' });
+    }
+
+    const results = {};
+
+    for (const username of usernames) {
+      const account = await SteamAccountService.getAccount(req.user._id, username);
+      if (!account) {
+        results[username] = { success: false, error: 'Account not found' };
+        continue;
+      }
+
+      const result = await BotManagerService.startBot(req.user._id, username);
+      results[username] = result.error ? { success: false, error: result.error } : { success: true };
+    }
+
+    res.status(200).json({ results });
+  } catch (error) {
+    logger.error('Batch start error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+router.post('/batch/stop', async (req, res) => {
+  try {
+    const { usernames = [] } = req.body;
+
+    if (!Array.isArray(usernames) || usernames.length === 0) {
+      return res.status(400).json({ error: 'No usernames provided' });
+    }
+
+    const results = {};
+
+    for (const username of usernames) {
+      const account = await SteamAccountService.getAccount(req.user._id, username);
+      if (!account) {
+        results[username] = { success: false, error: 'Account not found' };
+        continue;
+      }
+
+      const result = await BotManagerService.stopBot(req.user._id, username);
+      results[username] = result.error ? { success: false, error: result.error } : { success: true };
+    }
+
+    res.status(200).json({ results });
+  } catch (error) {
+    logger.error('Batch stop error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// DYNAMIC :username ROUTES - AFTER BATCH ROUTES
 router.get('/:username', async (req, res) => {
   try {
     const { username } = req.params;
@@ -401,62 +459,6 @@ router.post('/:username/clone-settings/:sourceUsername', async (req, res) => {
     res.status(200).json({ message: 'Settings cloned successfully' });
   } catch (error) {
     logger.error('Clone settings error:', error);
-    res.status(500).json({ error: error.message });
-  }
-});
-
-router.post('/batch/start', async (req, res) => {
-  try {
-    const { usernames = [] } = req.body;
-
-    if (!Array.isArray(usernames) || usernames.length === 0) {
-      return res.status(400).json({ error: 'No usernames provided' });
-    }
-
-    const results = {};
-
-    for (const username of usernames) {
-      const account = await SteamAccountService.getAccount(req.user._id, username);
-      if (!account) {
-        results[username] = { success: false, error: 'Account not found' };
-        continue;
-      }
-
-      const result = await BotManagerService.startBot(req.user._id, username);
-      results[username] = result.error ? { success: false, error: result.error } : { success: true };
-    }
-
-    res.status(200).json({ results });
-  } catch (error) {
-    logger.error('Batch start error:', error);
-    res.status(500).json({ error: error.message });
-  }
-});
-
-router.post('/batch/stop', async (req, res) => {
-  try {
-    const { usernames = [] } = req.body;
-
-    if (!Array.isArray(usernames) || usernames.length === 0) {
-      return res.status(400).json({ error: 'No usernames provided' });
-    }
-
-    const results = {};
-
-    for (const username of usernames) {
-      const account = await SteamAccountService.getAccount(req.user._id, username);
-      if (!account) {
-        results[username] = { success: false, error: 'Account not found' };
-        continue;
-      }
-
-      const result = await BotManagerService.stopBot(req.user._id, username);
-      results[username] = result.error ? { success: false, error: result.error } : { success: true };
-    }
-
-    res.status(200).json({ results });
-  } catch (error) {
-    logger.error('Batch stop error:', error);
     res.status(500).json({ error: error.message });
   }
 });
