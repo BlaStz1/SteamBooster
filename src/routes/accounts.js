@@ -201,4 +201,67 @@ router.get('/:username/stats', async (req, res) => {
   }
 });
 
+router.post('/:username/start', async (req, res) => {
+  try {
+    const { username } = req.params;
+
+    const account = await SteamAccountService.getAccount(req.user._id, username);
+    if (!account) {
+      return res.status(404).json({ error: 'Account not found' });
+    }
+
+    if (account.isRunning) {
+      return res.status(400).json({ error: 'Account is already running' });
+    }
+
+    await AccountLogService.addLog(account._id, 'STATUS_CHANGE', 'Account started by user', { status: 'starting' });
+
+    res.status(200).json({ message: 'Account start initiated' });
+  } catch (error) {
+    logger.error('Start account error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+router.post('/:username/stop', async (req, res) => {
+  try {
+    const { username } = req.params;
+
+    const account = await SteamAccountService.getAccount(req.user._id, username);
+    if (!account) {
+      return res.status(404).json({ error: 'Account not found' });
+    }
+
+    if (!account.isRunning) {
+      return res.status(400).json({ error: 'Account is already stopped' });
+    }
+
+    await AccountLogService.addLog(account._id, 'STATUS_CHANGE', 'Account stopped by user', { status: 'stopping' });
+
+    res.status(200).json({ message: 'Account stop initiated' });
+  } catch (error) {
+    logger.error('Stop account error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+router.get('/:username/logs', async (req, res) => {
+  try {
+    const { username } = req.params;
+    const limit = req.query.limit || 100;
+
+    const account = await SteamAccountService.getAccount(req.user._id, username);
+    if (!account) {
+      return res.status(404).json({ error: 'Account not found' });
+    }
+
+    const logs = await AccountLogService.getLogs(account._id, parseInt(limit));
+
+    res.status(200).json({ logs });
+  } catch (error) {
+    logger.error('Get logs error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 module.exports = router;
