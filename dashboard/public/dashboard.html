@@ -476,40 +476,23 @@
           headers: { 'Authorization': `Bearer ${token}` },
         });
 
-        const data = await response.json();
+        let errorMsg = 'Failed to start account';
+        try {
+          const data = await response.json();
+          errorMsg = data.error || errorMsg;
+        } catch (e) {
+          // Response might not be JSON
+        }
 
         if (!response.ok) {
-          alert(data.error || 'Failed to start account');
+          alert(errorMsg);
           return;
         }
-        loadAccounts();
 
-        setTimeout(() => {
-          checkAccountStatus(username);
-        }, 2000);
+        loadAccounts();
       } catch (error) {
         console.error('Start account error:', error);
         alert('Error starting account: ' + error.message);
-      }
-    }
-
-    async function checkAccountStatus(username) {
-      try {
-        const response = await fetch(`/api/accounts/${username}/status`, {
-          headers: { 'Authorization': `Bearer ${token}` },
-        });
-
-        if (!response.ok) return;
-
-        const status = await response.json();
-
-        if (status.status === 'STEAM_GUARD_REQUIRED' || status.status.includes('STEAM_GUARD')) {
-          showSteam2FAModal(username);
-        } else if (!status.isRunning && status.error) {
-          console.warn(`Account ${username} has error: ${status.error}`);
-        }
-      } catch (error) {
-        console.error('Status check error:', error);
       }
     }
 
