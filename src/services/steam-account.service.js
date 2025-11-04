@@ -3,6 +3,7 @@ const { BoostedGame, BoostedGameUser } = require('../models/BoostedGame');
 const { logger } = require('../helpers/logger.helper');
 const { appIdsToBytes, bytesToAppIds } = require('../utils/steam.util');
 const { tokenToBytes, bytesToToken } = require('../utils/jwt.util');
+const { encrypt, decrypt } = require('../utils/crypto.util');
 
 class SteamAccountService {
   static async addIdleHours(username, hours, games = []) {
