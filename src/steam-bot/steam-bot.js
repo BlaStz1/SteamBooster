@@ -236,6 +236,10 @@ class SteamBot {
 
           if (action.type === EAuthSessionGuardType.EmailCode) {
             this.logMessage(`Steam Guard Email Code required (${action?.detail})`);
+            this.setStatus(STEAM_BOT_STATUS.STEAM_GUARD_REQUIRED);
+            if (this.on2FARequired) {
+              this.on2FARequired();
+            }
           } else if (action.type === EAuthSessionGuardType.DeviceCode) {
             if (this.getSharedSecret()) {
               const authCode = SteamTotp.getAuthCode(this.getSharedSecret());
@@ -243,6 +247,10 @@ class SteamBot {
               this.inputSteamGuardCode(authCode);
             } else {
               this.logMessage('Steam Guard Mobile Code required');
+              this.setStatus(STEAM_BOT_STATUS.STEAM_GUARD_REQUIRED);
+              if (this.on2FARequired) {
+                this.on2FARequired();
+              }
             }
           }
         }
@@ -278,11 +286,12 @@ class SteamBot {
   start(isRestart = false) {
     try {
       this.setStatus(STEAM_BOT_STATUS.LOGGING_IN);
-      this.initSteamSession(isRestart);
+      return this.initSteamSession(isRestart);
     } catch (error) {
       logger.error(`${this.getUsername()} | ${error}`);
       this.setError(STEAM_BOT_STATUS.LOGIN_ERROR);
       this.logMessage('Error while starting bot');
+      return Promise.reject(error);
     }
   }
 
