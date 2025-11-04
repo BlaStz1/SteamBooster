@@ -258,6 +258,7 @@
 
     document.getElementById('username').textContent = user.username || 'User';
     let currentEditingAccount = null;
+    let currentSteam2FAUsername = null;
 
     const socket = io();
     socket.on('connect', () => {
@@ -265,21 +266,24 @@
     });
 
     socket.on('show-2fa-modal', (data) => {
-      showSteam2FAModal(data.username);
+      showSteam2FAModalForAccount(data.username);
     });
 
     socket.on('log-added', (data) => {
-      const logsDiv = document.getElementById(`logs-${data.username}`);
-      if (logsDiv && !logsDiv.classList.contains('hidden')) {
-        const logsContent = document.getElementById(`logs-content-${data.username}`);
-        loadAccountLogs(data.username, logsContent);
-      }
+      loadAccounts();
     });
 
     document.getElementById('steam-2fa-form').addEventListener('submit', async (e) => {
       e.preventDefault();
       const code = document.getElementById('steam-2fa-code').value;
       const errorDiv = document.getElementById('steam-2fa-error');
+      const username = currentSteam2FAUsername;
+
+      if (!username) {
+        errorDiv.textContent = 'No account selected';
+        errorDiv.classList.remove('hidden');
+        return;
+      }
 
       if (code.length !== 6 || isNaN(code)) {
         errorDiv.textContent = 'Please enter a valid 6-digit code';
@@ -288,7 +292,7 @@
       }
 
       try {
-        const response = await fetch(`/api/accounts/${currentEditingAccount}/submit-2fa`, {
+        const response = await fetch(`/api/accounts/${username}/submit-2fa`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -306,10 +310,8 @@
 
         const data = await response.json();
 
-        document.getElementById('steam-2fa-modal').classList.add('hidden');
-        document.getElementById('steam-2fa-form').reset();
-        document.body.style.overflow = '';
-        errorDiv.classList.add('hidden');
+        close2FAModal();
+        showToast(`2FA code submitted for ${username}`, 'success', 3000);
         loadAccounts();
       } catch (error) {
         console.error('2FA submission error:', error);
