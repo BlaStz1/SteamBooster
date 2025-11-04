@@ -461,7 +461,7 @@ router.post('/batch/stop', async (req, res) => {
   }
 });
 
-router.get('/health-check/:username', async (req, res) => {
+router.get('/:username/health-check', async (req, res) => {
   try {
     const { username } = req.params;
 
@@ -481,6 +481,104 @@ router.get('/health-check/:username', async (req, res) => {
     });
   } catch (error) {
     logger.error('Health check error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+router.post('/:username/offline-mode', async (req, res) => {
+  try {
+    const { username } = req.params;
+    const { enabled } = req.body;
+
+    const account = await SteamAccountService.getAccount(req.user._id, username);
+    if (!account) {
+      return res.status(404).json({ error: 'Account not found' });
+    }
+
+    await SteamAccountService.setOfflineMode(username, enabled);
+    await AccountLogService.addLog(account._id, 'INFO', `Offline mode ${enabled ? 'enabled' : 'disabled'}`, { enabled });
+
+    res.status(200).json({ message: `Offline mode ${enabled ? 'enabled' : 'disabled'}` });
+  } catch (error) {
+    logger.error('Offline mode error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+router.post('/:username/auto-restart', async (req, res) => {
+  try {
+    const { username } = req.params;
+    const { enabled } = req.body;
+
+    const account = await SteamAccountService.getAccount(req.user._id, username);
+    if (!account) {
+      return res.status(404).json({ error: 'Account not found' });
+    }
+
+    await SteamAccountService.setAutoRestart(username, enabled);
+    await AccountLogService.addLog(account._id, 'INFO', `Auto-restart ${enabled ? 'enabled' : 'disabled'}`, { enabled });
+
+    res.status(200).json({ message: `Auto-restart ${enabled ? 'enabled' : 'disabled'}` });
+  } catch (error) {
+    logger.error('Auto-restart error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+router.post('/:username/schedule', async (req, res) => {
+  try {
+    const { username } = req.params;
+    const { startTime, stopTime } = req.body;
+
+    const account = await SteamAccountService.getAccount(req.user._id, username);
+    if (!account) {
+      return res.status(404).json({ error: 'Account not found' });
+    }
+
+    await SteamAccountService.setScheduledTimes(username, startTime, stopTime);
+    await AccountLogService.addLog(account._id, 'INFO', 'Schedule updated', { startTime, stopTime });
+
+    res.status(200).json({ message: 'Schedule updated successfully', startTime, stopTime });
+  } catch (error) {
+    logger.error('Schedule error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+router.post('/:username/proxy', async (req, res) => {
+  try {
+    const { username } = req.params;
+    const { proxyUrl } = req.body;
+
+    const account = await SteamAccountService.getAccount(req.user._id, username);
+    if (!account) {
+      return res.status(404).json({ error: 'Account not found' });
+    }
+
+    await SteamAccountService.setProxyUrl(username, proxyUrl);
+    await AccountLogService.addLog(account._id, 'INFO', 'Proxy URL updated', { proxy: proxyUrl ? '***' : 'removed' });
+
+    res.status(200).json({ message: 'Proxy URL updated successfully' });
+  } catch (error) {
+    logger.error('Proxy error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+router.get('/:username/settings', async (req, res) => {
+  try {
+    const { username } = req.params;
+
+    const account = await SteamAccountService.getAccount(req.user._id, username);
+    if (!account) {
+      return res.status(404).json({ error: 'Account not found' });
+    }
+
+    const settings = await SteamAccountService.getAccountSettings(username);
+
+    res.status(200).json(settings);
+  } catch (error) {
+    logger.error('Get settings error:', error);
     res.status(500).json({ error: error.message });
   }
 });
