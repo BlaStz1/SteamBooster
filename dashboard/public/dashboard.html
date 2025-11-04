@@ -563,6 +563,250 @@
       return colors[type] || colors['INFO'];
     }
 
+    async function restartAccount(username) {
+      try {
+        const response = await fetch(`/api/accounts/${username}/restart`, {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${token}` },
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          alert(data.error || 'Failed to restart account');
+          return;
+        }
+
+        loadAccounts();
+      } catch (error) {
+        console.error('Restart account error:', error);
+      }
+    }
+
+    async function healthCheck(username) {
+      try {
+        const response = await fetch(`/api/accounts/${username}/health-check`, {
+          headers: { 'Authorization': `Bearer ${token}` },
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          alert('Health check failed: ' + (data.error || 'Unknown error'));
+          return;
+        }
+
+        if (data.healthy) {
+          alert(`✓ ${username} is healthy and ready to boost!`);
+        } else {
+          alert(`✗ ${username} has issues: ${data.error}`);
+        }
+      } catch (error) {
+        console.error('Health check error:', error);
+        alert('Health check failed');
+      }
+    }
+
+    let settingsAccountUsername = null;
+
+    async function openSettingsModal(username) {
+      settingsAccountUsername = username;
+
+      try {
+        const response = await fetch(`/api/accounts/${username}/settings`, {
+          headers: { 'Authorization': `Bearer ${token}` },
+        });
+
+        if (!response.ok) {
+          alert('Failed to load settings');
+          return;
+        }
+
+        const settings = await response.json();
+
+        document.getElementById('auto-restart-check').checked = settings.autoRestartEnabled || false;
+        document.getElementById('offline-mode-check').checked = settings.offlineModeEnabled || false;
+        document.getElementById('game-rotation-check').checked = settings.gameRotationEnabled || false;
+        document.getElementById('rotation-interval').value = settings.gameRotationInterval || 3600000;
+        document.getElementById('schedule-start').value = settings.scheduledStartTime || '';
+        document.getElementById('schedule-stop').value = settings.scheduledStopTime || '';
+        document.getElementById('proxy-url').value = settings.proxyUrl || '';
+      } catch (error) {
+        console.error('Load settings error:', error);
+      }
+
+      document.getElementById('account-settings-modal').classList.remove('hidden');
+    }
+
+    function closeSettingsModal() {
+      document.getElementById('account-settings-modal').classList.add('hidden');
+      document.getElementById('account-settings-form').reset();
+      settingsAccountUsername = null;
+    }
+
+    document.getElementById('account-settings-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const username = settingsAccountUsername;
+      const errorDiv = document.getElementById('settings-error');
+
+      if (!username) {
+        errorDiv.textContent = 'No account selected';
+        errorDiv.classList.remove('hidden');
+        return;
+      }
+
+      try {
+        const autoRestart = document.getElementById('auto-restart-check').checked;
+        const offlineMode = document.getElementById('offline-mode-check').checked;
+        const gameRotation = document.getElementById('game-rotation-check').checked;
+        const rotationInterval = parseInt(document.getElementById('rotation-interval').value) || 3600000;
+        const scheduleStart = document.getElementById('schedule-start').value;
+        const scheduleStop = document.getElementById('schedule-stop').value;
+        const proxyUrl = document.getElementById('proxy-url').value;
+
+        let successCount = 0;
+        let errors = [];
+
+        if (autoRestart !== undefined) {
+          const resp = await fetch(`/api/accounts/${username}/auto-restart`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+            body: JSON.stringify({ enabled: autoRestart }),
+          });
+          if (resp.ok) successCount++;
+          else errors.push('Auto-restart');
+        }
+
+        if (offlineMode !== undefined) {
+          const resp = await fetch(`/api/accounts/${username}/offline-mode`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+            body: JSON.stringify({ enabled: offlineMode }),
+          });
+          if (resp.ok) successCount++;
+          else errors.push('Offline mode');
+        }
+
+        if (gameRotation !== undefined) {
+          const resp = await fetch(`/api/accounts/${username}/rotate-games`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+            body: JSON.stringify({ interval: rotationInterval }),
+          });
+          if (resp.ok) successCount++;
+          else errors.push('Game rotation');
+        }
+
+        if (scheduleStart || scheduleStop) {
+          const resp = await fetch(`/api/accounts/${username}/schedule`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+            body: JSON.stringify({ startTime: scheduleStart, stopTime: scheduleStop }),
+          });
+          if (resp.ok) successCount++;
+          else errors.push('Schedule');
+        }
+
+        if (proxyUrl) {
+          const resp = await fetch(`/api/accounts/${username}/proxy`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+            body: JSON.stringify({ proxyUrl }),
+          });
+          if (resp.ok) successCount++;
+          else errors.push('Proxy');
+        }
+
+        if (errors.length > 0) {
+          errorDiv.textContent = `Failed to update: ${errors.join(', ')}`;
+          errorDiv.classList.remove('hidden');
+        } else {
+          closeSettingsModal();
+          loadAccounts();
+        }
+      } catch (error) {
+        console.error('Settings save error:', error);
+        errorDiv.textContent = 'An error occurred. Please try again.';
+        errorDiv.classList.remove('hidden');
+      }
+    });
+
+    async function batchStartAccounts() {
+      const accountElements = document.querySelectorAll('#accounts-list tr');
+      const usernames = Array.from(accountElements).map(row => row.cells[0].textContent).filter(name => name);
+
+      if (usernames.length === 0) {
+        alert('No accounts to start');
+        return;
+      }
+
+      try {
+        const response = await fetch('/api/accounts/batch/start', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+          body: JSON.stringify({ usernames }),
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          alert('Batch start failed: ' + (data.error || 'Unknown error'));
+          return;
+        }
+
+        let successCount = 0;
+        let failedCount = 0;
+        for (const [username, result] of Object.entries(data.results)) {
+          if (result.success) successCount++;
+          else failedCount++;
+        }
+
+        alert(`Started ${successCount} accounts${failedCount > 0 ? `, ${failedCount} failed` : ''}`);
+        loadAccounts();
+      } catch (error) {
+        console.error('Batch start error:', error);
+        alert('Batch start failed');
+      }
+    }
+
+    async function batchStopAccounts() {
+      const accountElements = document.querySelectorAll('#accounts-list tr');
+      const usernames = Array.from(accountElements).map(row => row.cells[0].textContent).filter(name => name);
+
+      if (usernames.length === 0) {
+        alert('No accounts to stop');
+        return;
+      }
+
+      try {
+        const response = await fetch('/api/accounts/batch/stop', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+          body: JSON.stringify({ usernames }),
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          alert('Batch stop failed: ' + (data.error || 'Unknown error'));
+          return;
+        }
+
+        let successCount = 0;
+        let failedCount = 0;
+        for (const [username, result] of Object.entries(data.results)) {
+          if (result.success) successCount++;
+          else failedCount++;
+        }
+
+        alert(`Stopped ${successCount} accounts${failedCount > 0 ? `, ${failedCount} failed` : ''}`);
+        loadAccounts();
+      } catch (error) {
+        console.error('Batch stop error:', error);
+        alert('Batch stop failed');
+      }
+    }
+
     function logout() {
       localStorage.removeItem('token');
       localStorage.removeItem('user');
