@@ -590,12 +590,14 @@
 
     document.getElementById('edit-games-form').addEventListener('submit', async (e) => {
       e.preventDefault();
-      const gameIds = document.getElementById('edit-game-ids').value
-        .split(',')
-        .map(id => parseInt(id.trim()))
-        .filter(id => !isNaN(id));
-
+      const gameIds = Array.from(selectedGames.keys());
       const errorDiv = document.getElementById('edit-games-error');
+
+      if (gameIds.length === 0) {
+        errorDiv.textContent = 'Please select at least one game';
+        errorDiv.classList.remove('hidden');
+        return;
+      }
 
       if (gameIds.length > 15) {
         errorDiv.textContent = 'Maximum 15 games allowed per account';
@@ -620,8 +622,7 @@
           return;
         }
 
-        const data = await response.json();
-
+        showToast('Games updated successfully', 'success', 3000);
         closeEditGamesModal();
         loadAccounts();
       } catch (error) {
