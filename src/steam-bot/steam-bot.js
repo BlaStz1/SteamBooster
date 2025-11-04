@@ -48,6 +48,7 @@ class SteamBot {
     this.#vacStatus = null;
     this.#toBeRemoved = false;
     this.#toBeRestarted = false;
+    this.on2FARequired = account.on2FARequired || null;
 
     this.steamUser = new SteamUser({
       dataDirectory: './accounts-data',
