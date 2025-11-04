@@ -377,38 +377,35 @@
       }
 
       list.innerHTML = accounts.map(acc => {
-        const status = getBotStatus(acc.username);
-        let statusDisplay = '⚪ Offline';
-        let statusColor = 'text-white/70';
-        let statusClickable = '';
-        let isSteamGuardRequired = false;
-
-        if (status && status.status === 'STEAM_GUARD_REQUIRED') {
-          statusDisplay = '🔵 Steam Guard Required';
-          statusColor = 'text-blue-400 cursor-pointer hover:text-blue-300';
-          statusClickable = `onclick="showSteam2FAModalForAccount('${acc.username}')"`;
-          isSteamGuardRequired = true;
-        } else if (acc.isRunning) {
-          statusDisplay = '🟢 Online';
-          statusColor = 'text-green-400';
-        }
+        const statusIcon = acc.isRunning ? '🟢' : '⚪';
+        const statusText = acc.isRunning ? 'Online' : 'Offline';
+        const gameCount = acc.games ? acc.games.length : 0;
 
         return `
-          <tr class="border-b border-white/10 hover:bg-white/5 transition">
-            <td class="py-4 px-4 text-white/70">${formatUptime(new Date(acc.createdAt))}</td>
-            <td class="py-4 px-4 font-semibold text-white">${acc.username}</td>
-            <td class="py-4 px-4 text-white/70">${(acc.totalHoursIdled || 0).toFixed(2)} hrs</td>
-            <td class="py-4 px-4 text-white/70">${acc.games ? acc.games.length : 0}/${acc.games ? acc.games.length : 0}</td>
-            <td class="py-4 px-4 ${statusColor}" ${statusClickable}>${statusDisplay}</td>
-            <td class="py-4 px-4">
-              <div class="flex gap-2 flex-wrap">
-                ${isSteamGuardRequired ? `<button onclick="showSteam2FAModalForAccount('${acc.username}')" title="Enter Steam Guard Code" class="px-2 py-1 bg-blue-500/20 hover:bg-blue-500/30 text-blue-400 text-xs font-medium rounded transition">🔐 2FA</button>` : `<button onclick="startAccount('${acc.username}')" title="Start" class="px-2 py-1 bg-green-500/20 hover:bg-green-500/30 text-green-400 text-xs font-medium rounded transition">▶</button>`}
-                <button onclick="stopAccount('${acc.username}')" title="Stop" class="px-2 py-1 bg-red-500/20 hover:bg-red-500/30 text-red-400 text-xs font-medium rounded transition">⏹</button>
-                <button onclick="openEditGamesModal('${acc.username}')" title="Games" class="px-2 py-1 bg-blue-500/20 hover:bg-blue-500/30 text-blue-400 text-xs font-medium rounded transition">🎮</button>
-                <button onclick="openLogsModal('${acc.username}')" title="Logs" class="px-2 py-1 bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-400 text-xs font-medium rounded transition">📋</button>
-                <button onclick="openSettingsModal('${acc.username}')" title="Settings" class="px-2 py-1 bg-purple-500/20 hover:bg-purple-500/30 text-purple-400 text-xs font-medium rounded transition">⚙️</button>
-                <button onclick="healthCheck('${acc.username}')" title="Check" class="px-2 py-1 bg-yellow-500/20 hover:bg-yellow-500/30 text-yellow-400 text-xs font-medium rounded transition">✓</button>
-                <button onclick="deleteAccount('${acc.username}')" title="Delete" class="px-2 py-1 bg-red-600/20 hover:bg-red-600/30 text-red-300 text-xs font-medium rounded transition">🗑️</button>
+          <tr class="border-b border-white/10">
+            <td class="py-3 px-4">
+              <span class="text-white/60">${formatUptime(new Date(acc.createdAt))}</span>
+            </td>
+            <td class="py-3 px-4">
+              <span class="text-white font-medium">${acc.username}</span>
+            </td>
+            <td class="py-3 px-4">
+              <span class="text-white">${(acc.totalHoursIdled || 0).toFixed(2)} hrs</span>
+            </td>
+            <td class="py-3 px-4">
+              <span class="text-white/70">${gameCount}/${gameCount}</span>
+            </td>
+            <td class="py-3 px-4">
+              <span class="text-white/70">${statusIcon} ${statusText}</span>
+            </td>
+            <td class="py-3 px-4">
+              <div class="flex gap-2">
+                <button onclick="startAccount('${acc.username}')" class="px-2 py-1 bg-white/10 hover:bg-white/20 text-white text-xs rounded transition">▶</button>
+                <button onclick="stopAccount('${acc.username}')" class="px-2 py-1 bg-white/10 hover:bg-white/20 text-white text-xs rounded transition">⏹</button>
+                <button onclick="openEditGamesModal('${acc.username}')" class="px-2 py-1 bg-white/10 hover:bg-white/20 text-white text-xs rounded transition">🎮</button>
+                <button onclick="openLogsModal('${acc.username}')" class="px-2 py-1 bg-white/10 hover:bg-white/20 text-white text-xs rounded transition">📋</button>
+                <button onclick="showSteamGuardInput('${acc.username}')" class="px-2 py-1 bg-white/10 hover:bg-white/20 text-white text-xs rounded transition">🔐</button>
+                <button onclick="deleteAccount('${acc.username}')" class="px-2 py-1 bg-red-600/20 hover:bg-red-600/30 text-red-300 text-xs rounded transition">🗑️</button>
               </div>
             </td>
           </tr>
