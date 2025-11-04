@@ -20,6 +20,11 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    tier: {
+      type: String,
+      enum: ['free', 'premium', 'ultra'],
+      default: 'free',
+    },
     createdAt: {
       type: Date,
       default: Date.now,
