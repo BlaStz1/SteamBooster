@@ -53,9 +53,26 @@ router.post('/', async (req, res) => {
       return res.status(400).json({ error: 'Username and password are required' });
     }
 
+    const userTier = req.user.tier || 'free';
+    const tierLimits = USER_TIERS[userTier.toUpperCase()];
+
+    const accountCount = await SteamAccountService.getAccountsCount(req.user._id);
+    if (accountCount >= tierLimits.maxSteamAccounts) {
+      return res.status(400).json({
+        error: `You have reached the maximum number of accounts (${tierLimits.maxSteamAccounts}) for your tier`,
+      });
+    }
+
     const existingAccount = await SteamAccount.findOne({ username });
     if (existingAccount) {
       return res.status(400).json({ error: 'Steam account already registered' });
+    }
+
+    const gameList = games || [];
+    if (gameList.length > tierLimits.maxSteamGames) {
+      return res.status(400).json({
+        error: `You can only idle a maximum of ${tierLimits.maxSteamGames} games for your tier`,
+      });
     }
 
     const account = await SteamAccountService.insert({
@@ -63,9 +80,11 @@ router.post('/', async (req, res) => {
       password,
       sharedSecret: sharedSecret || null,
       refreshToken: '',
-      games: games || [],
+      games: gameList,
       userId: req.user._id,
     });
+
+    await AccountLogService.addLog(account._id, 'INFO', `Account created`, { username });
 
     res.status(201).json({
       message: 'Steam account added successfully',
