@@ -23,7 +23,6 @@ class SteamBot {
   #loginTimeout;
   #isRunning;
   #steamGuardAuth;
-  #discordOwnerId;
   #username;
   #password;
   #sharedSecret;
@@ -34,15 +33,12 @@ class SteamBot {
   #toBeRemoved;
   #toBeRestarted;
 
-  #discordClient;
-
-  constructor(account, discordClient) {
+  constructor(account) {
     this.#error = null;
     this.#status = STEAM_BOT_STATUS.IDLE;
     this.#loginTimeout = 3 * 60 * 1000;
     this.#isRunning = false;
     this.#steamGuardAuth = null;
-    this.#discordOwnerId = account.discordOwnerId;
     this.#username = account.username;
     this.#password = account.password;
     this.#sharedSecret = account.sharedSecret;
@@ -52,8 +48,7 @@ class SteamBot {
     this.#vacStatus = null;
     this.#toBeRemoved = false;
     this.#toBeRestarted = false;
-
-    this.#discordClient = discordClient;
+    this.on2FARequired = account.on2FARequired || null;
 
     this.steamUser = new SteamUser({
       dataDirectory: './accounts-data',
@@ -68,10 +63,9 @@ class SteamBot {
     this.steamUser.on('disconnected', this.onDisconnected.bind(this));
   }
 
-  replyDiscord(message) {
-    const { sendDM } = this.#discordClient.functions;
-    const msg = `**${this.getUsername()}** | ${message}`;
-    sendDM(this.getDiscordOwnerId(), msg);
+  logMessage(message) {
+    const msg = `[${this.getUsername()}] ${message}`;
+    logger.info(msg);
   }
 
   setError(error) {
@@ -112,13 +106,6 @@ class SteamBot {
     return this.#steamGuardAuth;
   }
 
-  setDiscordOwnerId(discordOwnerId) {
-    this.#discordOwnerId = discordOwnerId;
-  }
-
-  getDiscordOwnerId() {
-    return this.#discordOwnerId;
-  }
 
   setUsername(username) {
     this.#username = username;
@@ -184,17 +171,17 @@ class SteamBot {
     } catch (error) {
       switch (error.eresult) {
         case EResult.InvalidLoginAuthCode:
-          this.replyDiscord('Invalid Steam Guard Email code!');
+          this.logMessage('Invalid Steam Guard Email code');
           return;
         case EResult.TwoFactorCodeMismatch:
-          this.replyDiscord('Invalid Steam Guard Mobile Authenticator code!');
+          this.logMessage('Invalid Steam Guard Mobile Authenticator code');
           if (this.getSharedSecret()) {
-            this.replyDiscord('Either your Steam Guard Mobile code is wrong or your shared secret is invalid!');
+            this.logMessage('Steam Guard Mobile code is wrong or shared secret is invalid');
           }
           return;
         default:
           logger.error(`${this.getUsername()} | Unhandled error while authenticating Steam Guard: ${error?.message} (${error?.eresult}) - ${error}`);
-          this.replyDiscord(`ERROR: Unhandled error while authenticating Steam Guard: ${error?.message} (${error?.eresult})!`);
+          this.logMessage(`Unhandled error while authenticating Steam Guard: ${error?.message} (${error?.eresult})`);
           break;
       }
       throw error;
@@ -207,18 +194,18 @@ class SteamBot {
 
   #login(isRestart = false) {
     try {
-      const loginMsg = isRestart ? 'ℹ️ Automatically restarting...' : 'Logging in using refresh token...';
-      this.replyDiscord(loginMsg);
+      const loginMsg = isRestart ? 'Automatically restarting...' : 'Logging in using refresh token...';
+      this.logMessage(loginMsg);
 
       this.steamUser.logOn({
         refreshToken: this.getRefreshToken(),
-        machineName: `SHBD-${this.getDiscordOwnerId()}`,
+        machineName: `HB-${this.getUsername()}`,
         clientOS: SteamUser.EOSType.Windows10,
       });
     } catch (error) {
       logger.error(`${this.getUsername()} | ${error}`);
       this.setError(STEAM_BOT_STATUS.LOGIN_ERROR);
-      this.replyDiscord('Error while logging in!');
+      this.logMessage('Error while logging in!');
     }
   }
 
@@ -229,7 +216,7 @@ class SteamBot {
         return;
       }
 
-      this.replyDiscord('Getting new refresh token...');
+      this.logMessage('Getting new refresh token...');
 
       const steamSession = new LoginSession(EAuthTokenPlatformType.SteamClient);
       steamSession.loginTimeout = this.#loginTimeout;
@@ -248,14 +235,22 @@ class SteamBot {
           this.setSteamGuardAuth({ isSessionSteamGuard: true, callback: (code) => steamSession.submitSteamGuardCode(code) });
 
           if (action.type === EAuthSessionGuardType.EmailCode) {
-            this.replyDiscord(`Steam Guard Email (${action?.detail}) Code required! Use \`/boost steam-guard\``);
+            this.logMessage(`Steam Guard Email Code required (${action?.detail})`);
+            this.setStatus(STEAM_BOT_STATUS.STEAM_GUARD_REQUIRED);
+            if (this.on2FARequired) {
+              this.on2FARequired();
+            }
           } else if (action.type === EAuthSessionGuardType.DeviceCode) {
             if (this.getSharedSecret()) {
               const authCode = SteamTotp.getAuthCode(this.getSharedSecret());
-              this.replyDiscord(`Trying using generated Steam Guard Code: \`${authCode}\``);
+              this.logMessage(`Using generated Steam Guard Code: ${authCode}`);
               this.inputSteamGuardCode(authCode);
             } else {
-              this.replyDiscord('Steam Guard Mobile Code required! Use `/boost steam-guard`.');
+              this.logMessage('Steam Guard Mobile Code required');
+              this.setStatus(STEAM_BOT_STATUS.STEAM_GUARD_REQUIRED);
+              if (this.on2FARequired) {
+                this.on2FARequired();
+              }
             }
           }
         }
@@ -268,22 +263,22 @@ class SteamBot {
 
       steamSession.on('timeout', () => {
         this.setSteamGuardAuth(null);
-        this.replyDiscord(`Login timed out! Try again. (Timeout: \`${ms(this.#loginTimeout, { long: true })}\`)`);
+        this.logMessage(`Login timed out (Timeout: ${ms(this.#loginTimeout, { long: true })})`);
       });
 
       steamSession.on('error', (error) => {
         this.setSteamGuardAuth(null);
         logger.error(`${this.getUsername()} | Login error: ${error}`);
-        this.replyDiscord(`ERROR: Login failed! ${error?.message ?? error}`);
+        this.logMessage(`Login failed: ${error?.message ?? error}`);
       });
     } catch (error) {
       if (error.eresult === EResult.InvalidPassword) {
-        this.replyDiscord('ERROR: Invalid password while logging in!');
+        this.logMessage('Invalid password while logging in');
         return;
       }
 
       logger.error(`${this.getUsername()} | Login failure: ${error?.message} (${error?.eresult})`);
-      this.replyDiscord(`ERROR: Login failed: ${error?.message} (${error?.eresult})`);
+      this.logMessage(`Login failed: ${error?.message} (${error?.eresult})`);
       throw error;
     }
   }
@@ -291,18 +286,19 @@ class SteamBot {
   start(isRestart = false) {
     try {
       this.setStatus(STEAM_BOT_STATUS.LOGGING_IN);
-      this.initSteamSession(isRestart);
+      return this.initSteamSession(isRestart);
     } catch (error) {
       logger.error(`${this.getUsername()} | ${error}`);
       this.setError(STEAM_BOT_STATUS.LOGIN_ERROR);
-      this.replyDiscord('Error while starting bot!');
+      this.logMessage('Error while starting bot');
+      return Promise.reject(error);
     }
   }
 
 async stop(removeAccount = false) {
   try {
     this.setStatus(STEAM_BOT_STATUS.LOGGING_OUT);
-    this.replyDiscord('Logging out...');
+    this.logMessage('Logging out...');
 
     this.#toBeRemoved = removeAccount;
 
@@ -322,11 +318,11 @@ async stop(removeAccount = false) {
     await this.setIsRunning(false);
 
     this.setStatus(STEAM_BOT_STATUS.LOGGED_OUT);
-    this.replyDiscord('Successfully logged out!');
+    this.logMessage('Successfully logged out');
   } catch (error) {
     logger.error(`${this.getUsername()} | ${error}`);
     this.setError(STEAM_BOT_STATUS.LOGOUT_ERROR);
-    this.replyDiscord('Error while logging out!');
+    this.logMessage('Error while logging out');
   }
 }
 
@@ -340,7 +336,7 @@ async stop(removeAccount = false) {
     } catch (error) {
       logger.error(`${this.getUsername()} | ${error}`);
       this.setError(STEAM_BOT_STATUS.RESTART_ERROR);
-      this.replyDiscord('Error while restarting!');
+      this.logMessage('Error while restarting');
     }
   }
 
@@ -352,11 +348,11 @@ async stop(removeAccount = false) {
         this.setSteamGuardAuth(null);
         this.steamUser.setPersona(
           this.getOnlineStatus() ? SteamUser.EPersonaState.Online : SteamUser.EPersonaState.Invisible
-        ); 
+        );
 
-        this.replyDiscord(`Successfully logged on as \`${this.getSteamId64()}\`!`);
+        this.logMessage(`Successfully logged on as ${this.getSteamId64()}`);
         this.steamUser.gamesPlayed(shuffleArray(this.getGames()));
-        this.replyDiscord(`Started playing \`${JSON.stringify(this.getGames())}\`!`);
+        this.logMessage(`Started playing ${JSON.stringify(this.getGames())}`);
         this.setStatus(STEAM_BOT_STATUS.BOOST_STARTED);
         this.#sessionStart = Date.now();
         this.#idleTimer = setInterval(() => this.#flushIdle(), 5 * 60 * 1000);
@@ -364,12 +360,12 @@ async stop(removeAccount = false) {
       } else {
         this.setStatus(STEAM_BOT_STATUS.UnhandledLoggedInEvent(details?.eresult));
         logger.warn(`${this.getUsername()} | Unhandled loggedOn event: (${details?.eresult})`);
-        this.replyDiscord(`Unhandled logged on event: (${details?.eresult})`);
+        this.logMessage(`Unhandled logged on event: (${details?.eresult})`);
       }
     } catch (error) {
       logger.error(`${this.getUsername()} | ${error}`);
       this.setError(STEAM_BOT_STATUS.Error(error));
-      this.replyDiscord('Error after logging in!');
+      this.logMessage('Error after logging in');
     }
   }
 
@@ -393,12 +389,16 @@ async #flushIdle() {
 
   onSteamGuardAuth() {
     this.setStatus(STEAM_BOT_STATUS.STEAM_GUARD_REQUIRED);
+    this.logMessage('Steam Guard authentication required');
+    if (this.on2FARequired) {
+      this.on2FARequired();
+    }
     this.start();
   }
 
   onPlayingState(blocked, playingApp) {
     if (blocked) {
-      this.replyDiscord(`Game is being played in another session (AppID: ${playingApp})`);
+      this.logMessage(`Game is being played in another session (AppID: ${playingApp})`);
       this.setStatus(STEAM_BOT_STATUS.BlockedFromPlayingGames(playingApp));
     }
   }
@@ -420,30 +420,30 @@ async #flushIdle() {
           await this.#flushIdle();
           clearInterval(this.#idleTimer);
           this.setError(STEAM_BOT_STATUS.INVALID_PASSWORD);
-          this.replyDiscord('ERROR: Invalid password!');
+          this.logMessage('Invalid password');
           this.stop();
-          this.replyDiscord('Boost stopped! WARNING: Check your password.');
+          this.logMessage('Boost stopped - check your password');
           return;
 
         case SteamUser.EResult.LoggedInElsewhere:
           await this.#flushIdle();
           clearInterval(this.#idleTimer);
           this.setError(STEAM_BOT_STATUS.ERROR_LOGGED_IN_ELSEWHERE);
-          this.replyDiscord('ERROR: Logged in elsewhere!');
+          this.logMessage('Logged in elsewhere');
           break;
 
         case SteamUser.EResult.AccountLogonDenied:
           await this.#flushIdle();
           clearInterval(this.#idleTimer);
           this.setError(STEAM_BOT_STATUS.STEAM_GUARD_REQUIRED);
-          this.replyDiscord('ERROR: Steam Guard required!');
+          this.logMessage('Steam Guard required');
           break;
 
         case SteamUser.EResult.AccountHasBeenDeleted:
           await this.#flushIdle();
           clearInterval(this.#idleTimer);
           this.setError(STEAM_BOT_STATUS.ERROR_ACCOUNT_DELETED);
-          this.replyDiscord('ERROR: Account has been deleted!');
+          this.logMessage('Account has been deleted');
           this.stop();
           return;
 
@@ -451,7 +451,7 @@ async #flushIdle() {
           await this.#flushIdle();
           clearInterval(this.#idleTimer);
           this.setError(STEAM_BOT_STATUS.ERROR_LOGON_SESSION_REPLACED);
-          this.replyDiscord('ERROR: Logon session replaced! Stopping.');
+          this.logMessage('Logon session replaced - stopping');
           this.stop();
           break;
 
@@ -461,20 +461,14 @@ async #flushIdle() {
           this.setRefreshToken('');
           this.setError(STEAM_BOT_STATUS.Error(error));
           logger.warn(`${this.getUsername()} | Unhandled error event: ${error?.message} (${error?.eresult})`);
-          this.replyDiscord(`ERROR: Unhandled error event, please restart your bot: ${error?.message} (${error?.eresult})`);
+          this.logMessage(`Unhandled error event: ${error?.message} (${error?.eresult})`);
           this.stop();
           break;
       }
-
-      // this.replyDiscord('Reconnecting in 40 minutes...');
-      // setTimeout(() => {
-      //   this.replyDiscord('Reconnecting...');
-      //   this.start(true);
-      // }, 40 * 60 * 1000);
     } catch (err) {
       logger.error(`${this.getUsername()} | ${err}`);
       this.setError(STEAM_BOT_STATUS.Error(err));
-      this.replyDiscord('Error!');
+      this.logMessage('Error occurred');
     }
   }
 

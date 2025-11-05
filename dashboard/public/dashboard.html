@@ -1,1117 +1,1059 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-  <title>Hour Booster | Admin Dashboard</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hour Booster | Dashboard</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="/socket.io/socket.io.js"></script>
-  <script src="js/script.js"></script>
   <meta name="theme-color" content="#dc2626">
-  <link rel="stylesheet" href="styles.css">
-  <style>
-    body { display: flex; flex-direction: column; min-height: 100vh; }
-    .feature-card {
-      background: rgba(255,255,255,0.03);
-      backdrop-filter: blur(12px);
-      border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 1rem;
-      transition: all .3s ease;
-    }
-    .section-heading {
-      font-size: 2.25rem;
-      font-weight: 800;
-      background: linear-gradient(90deg, #dc2626, #ff6868);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      position: relative;
-    }
-    .section-heading::after {
-      content: '';
-      position: absolute;
-      bottom: -0.25rem;
-      left: 50%;
-      width: 3rem;
-      height: 0.25rem;
-      background: linear-gradient(90deg, #dc2626, #ff6868);
-      transform: translateX(-50%);
-      border-radius: 0.125rem;
-    }
-    .feature-card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 10px 30px rgba(220,38,38,0.2);
-    }
-    .gradient-bg { background: linear-gradient(45deg, #dc2626, #b91c1c); color: white; }
-    .nav-blur { backdrop-filter: blur(16px); background: rgba(0,0,0,0.4); }
-    main { flex: 1; }
-    nav button.active { color: white; }
-    .pagination { display: flex; justify-content: center; align-items: center; gap: 0.75rem; margin-top: 1rem; }
-  </style>
+  <link rel="stylesheet" href="css/styles.css">
 </head>
-  <!-- <body
-    class="bg-black text-white max-h-[400px] overflow-y-auto [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-red-500"
-  > -->
-<body class="bg-[#0e0e10] text-white font-sans [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-red-500">
-<div id="loader" class="fixed inset-0 bg-black z-50 flex items-center justify-center">
-  <div class="w-12 h-12 border-4 border-red-500 border-t-transparent rounded-full animate-spin"></div>
-</div>
-
-    <nav class="fixed w-full z-50 top-0">
-    <div class="nav-blur bg-[#0e0e10] border-b border-white/10">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-<div class="flex items-center justify-between h-14">
-          <div class="flex items-center gap-2">
-            <span class="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-red-500 to-red-700">Hour
-              Booster</span>
-          </div>
-
-          <!-- <div class="md:hidden">
-            <button onclick="toggleMobileMenu()" class="text-white p-2">
-              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path class="menu-icon" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M4 6h16M4 12h16M4 18h16"></path>
-              </svg>
-            </button>
-          </div> -->
-
-          <div class="hidden md:flex gap-3">
-            <a href="/dashboard">
-              <button
-                class="bg-white/10 hover:bg-white/20 px-4 py-1 rounded-lg transition-all duration-300">Overview</button>
-            </a>
-            <a href="/dashboard/accounts">
-              <button
-                class="bg-white/10 hover:bg-white/20 px-4 py-1 rounded-lg transition-all duration-300">Accounts</button>
-            </a>
-            <a href="/dashboard/users">
-              <button
-                class="bg-white/10 hover:bg-white/20 px-4 py-1 rounded-lg transition-all duration-300">Users</button>
-            </a>
-            <a href="/dashboard/licenses">
-              <button
-                class="bg-white/10 hover:bg-white/20 px-4 py-1 rounded-lg transition-all duration-300">Licenses</button>
-            </a>
-            <a href="/dashboard/status">
-              <button
-                class="bg-white/10 hover:bg-white/20 px-4 py-1 rounded-lg transition-all duration-300">Status</button>
-            </a>
-
-
-          </div>
-
-          <div id="mobileMenu" class="hidden md:hidden">
-            <div class="px-2 pt-2 pb-3 space-y-1 bg-black/50 rounded-lg mt-2">
-              <a href="#hero" class="block px-3 py-2 text-white/70 hover:text-white transition-colors">Home</a>
-              <a href="#features" class="block px-3 py-2 text-white/70 hover:text-white transition-colors">Features</a>
-              <a href="#commands" class="block px-3 py-2 text-white/70 hover:text-white transition-colors">Commands</a>
-            </div>
-          </div>
-        </div>
+<body class="bg-[#0e0e10] text-white min-h-screen">
+  <nav class="fixed w-full z-50 top-0 border-b border-white/10 bg-[#0e0e10]/80 backdrop-blur">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <span class="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-red-500 to-red-700">Hour Booster</span>
       </div>
+      <div class="flex items-center gap-4">
+        <span id="username" class="text-white/70"></span>
+        <button onclick="logout()" class="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg transition">Logout</button>
+      </div>
+    </div>
   </nav>
 
-
-  <!-- Mobile Sidebar -->
-<div id="mobile-sidebar" class="fixed top-0 left-0 h-full w-64 bg-black/80 backdrop-blur-md border-r border-white/10 transform -translate-x-full transition-transform duration-300 z-50 lg:hidden">
-  <div class="p-6">
-    <button id="close-sidebar" class="text-white text-xl mb-6">✕</button>
-    <nav class="space-y-4">
-      <button data-target="dashboard" class="nav-tab block w-full text-left text-white/70 hover:text-white" data-route="/dashboard">Dashboard</button>
-      <button data-target="accounts" class="nav-tab block w-full text-left text-white/70 hover:text-white" data-route="/dashboard/accounts">Accounts</button>
-      <button data-target="users" class="nav-tab block w-full text-left text-white/70 hover:text-white" data-route="/dashboard/users">Users</button>
-      <button data-target="licenses" class="nav-tab block w-full text-left text-white/70 hover:text-white" data-route="/dashboard/licenses">Licenses</button>
-      <button data-target="overview" class="nav-tab block w-full text-left text-white/70 hover:text-white" data-route="/dashboard/overview">Overview</button>
-    </nav>
-  </div>
-</div>
-
-
-  <main class="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 flex-1 overflow-hidden">
-    <!-- Dashboard -->
-    <section id="page-dashboard" class="hidden px-6 pt-28 sm:pt-20 md:pt-16">
-      <div class="text-center mb-6">
-        <h1 class="section-heading text-center mb-6">
-          Admin Overview
-        </h1>
+  <div id="steam-2fa-modal" class="hidden fixed inset-0 bg-black/50 z-[9999] flex items-center justify-center p-4">
+    <div class="bg-[#0e0e10] border border-white/10 rounded-2xl max-w-md w-full p-8 fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-2xl font-bold">Steam Guard Code Required</h2>
+        <button type="button" onclick="close2FAModal()" class="text-white/60 hover:text-white text-2xl font-bold">×</button>
       </div>
-      
-<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 gap-6 text-white">
-  <!-- Total Users -->
-  <div class="feature-card p-6 flex items-center gap-4">
-    <div class="w-14 h-14 flex items-center justify-center rounded-xl bg-red-500/20 border border-red-500/40 text-red-400 text-2xl">
-      👤
-    </div>
-    <div>
-      <h3 class="text-sm uppercase text-white/60">Total Users</h3>
-      <p id="stat-users" data-value="0" class="text-3xl font-bold tracking-tight opacity-0"></p>
-    </div>
-  </div>
-
-  <!-- Steam Accounts -->
-  <div class="feature-card p-6 flex items-center gap-4">
-    <div class="w-14 h-14 flex items-center justify-center rounded-xl bg-red-500/20 border border-red-500/40 text-red-400 text-2xl">
-      🎮
-    </div>
-    <div>
-      <h3 class="text-sm uppercase text-white/60">Steam Accounts</h3>
-      <p id="stat-accounts" data-value="0" class="text-3xl font-bold tracking-tight opacity-0"></p>
-    </div>
-  </div>
-
-  <!-- Currently Boosting -->
-  <div class="feature-card p-6 flex items-center gap-4">
-    <div class="w-14 h-14 flex items-center justify-center rounded-xl bg-red-500/20 border border-red-500/40 text-red-400 text-2xl">
-      ⚡
-    </div>
-    <div>
-      <h3 class="text-sm uppercase text-white/60">Boosting Now</h3>
-      <p id="stat-boosting" data-value="0" class="text-3xl font-bold tracking-tight opacity-0"></p>
-
-    </div>
-  </div>
-
-  <!-- Optional: Average Accounts per User -->
-  <div class="feature-card p-6 flex items-center gap-4">
-    <div class="w-14 h-14 flex items-center justify-center rounded-xl bg-red-500/20 border border-red-500/40 text-red-400 text-2xl">
-      📊
-    </div>
-    <div>
-      <h3 class="text-sm uppercase text-white/60">Accounts per User</h3>
-      <p id="stat-avg" data-value="0" class="text-3xl font-bold tracking-tight opacity-0"></p>
-    </div>
-  </div>
-</div>
-
-    </section>
-
-    <section id="page-status" class="hidden px-6 pt-28 sm:pt-20 md:pt-16">
-  <div class="text-center mb-6">
-    <h1 class="section-heading text-center mb-6">
-      System Status Management
-    </h1>
-    <p class="text-white/70 mt-2">Manage incidents and track updates per issue with full history.</p>
-  </div>
-
-  <!-- Create / Update Status Form -->
-  <div class="max-w-3xl mx-auto feature-card p-6 mb-10">
-    <h2 class="text-xl font-semibold mb-4">Log New Incident</h2>
-    <form id="status-form" class="space-y-4">
-      <input type="hidden" id="status-id" />
-      <div>
-        <label class="block text-white/70 mb-1">Title</label>
-        <input id="status-title" class="w-full bg-white/10 border border-white/20 px-4 py-2 rounded text-white" />
-      </div>
-      <div>
-        <label class="block text-white/70 mb-1">Type</label>
-        <select id="status-type" class="w-full bg-white/10 border border-white/20 px-4 py-2 rounded text-white">
-          <option value="info">Info</option>
-          <option value="downtime">Downtime</option>
-          <option value="bug">Bug</option>
-          <option value="maintenance">Maintenance</option>
-        </select>
-      </div>
-      <div>
-        <label class="block text-white/70 mb-1">Update Message</label>
-        <textarea id="status-message" rows="3" class="w-full bg-white/10 border border-white/20 px-4 py-2 rounded text-white resize-none"></textarea>
-      </div>
-      <div>
-        <label class="block text-white/70 mb-1">Affects (comma-separated)</label>
-        <input id="status-affects" class="w-full bg-white/10 border border-white/20 px-4 py-2 rounded text-white" />
-      </div>
-    <div>
-      <label class="block text-white/70 mb-1">Severity</label>
-      <select id="status-severity" class="w-full bg-white/10 border border-white/20 px-4 py-2 rounded text-white">
-        <option value="low">Low (Green)</option>
-        <option value="medium">Medium (Yellow)</option>
-        <option value="high">High (Red)</option>
-      </select>
-    </div>
-
-
-      <button type="submit" class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded text-white font-semibold">
-        Submit Update
-      </button>
-    </form>
-    <p id="status-response" class="text-sm mt-2 text-white/60 hidden">Status saved!</p>
-  </div>
-
-  <!-- Incident History Feed -->
-  <div class="max-w-4xl mx-auto">
-    <h2 class="text-2xl font-bold text-white mb-4">Incident Timeline</h2>
-    <div id="status-feed" class="space-y-8"></div>
-  </div>
-</section>
-
-    <!-- Accounts -->
-    <section id="page-accounts" class="hidden px-6 pt-28 sm:pt-20 md:pt-16">
-      <div class="text-center mb-6">
-        <h1 class="section-heading text-center mb-6">
-          Accounts
-        </h1>
-      </div>
-      <!-- Search Bar -->
-      <div class="mb-6 flex justify-center">
-        <input id="account-search" type="text" placeholder="Search accounts..."
-          class="w-full max-w-md px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-red-500" />
-      </div>
-      <!-- Cards Container -->
-      <div id="accounts-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6"></div>
-      <div id="no-results" class="hidden text-center text-white/50">No accounts found.</div>
-      <!-- Pagination Controls -->
-      <div id="pagination" class="pagination"></div>
-    </section>
-
-<!-- Users -->
-<section id="page-users" class="hidden px-6 pt-28 sm:pt-20 md:pt-16">
-  <div class="text-center mb-6">
-    <h1 class="section-heading text-center mb-6">
-      Users
-    </h1>
-  </div>
-  <!-- Search Bar -->
-  <div class="mb-6 flex justify-center">
-    <input id="user-search" type="text" placeholder="Search users..."
-      class="w-full max-w-md px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:ring-2 focus:ring-red-500" />
-  </div>
-  <!-- Cards Container -->
-  <div id="users-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6"></div>
-  <div id="no-users" class="hidden text-center text-white/50">No users found.</div>
-  <div id="pagination-users" class="pagination mt-4"></div>
-</section>
-
-<!-- Licenses -->
- 
-<section id="page-licenses" class="hidden px-6 pt-28 sm:pt-20 md:pt-16">
-  <div class="text-center mb-6">
-    <h1 class="section-heading text-center mb-6">
-      Licenses
-    </h1>
-  </div>
-  <!-- Search Bar -->
-  <div class="mb-5 flex justify-center">
-    <input id="license-search" type="text" placeholder="Search licenses..."
-      class="w-full max-w-md px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:ring-2 focus:ring-red-500" />
-  </div>
-  <!-- License Type Filter -->
-<div class="mb-4 flex justify-center">
-<select id="license-type-filter"
-  class="w-full max-w-xs px-3 py-2 bg-white/10 border border-white/20 rounded text-white appearance-none">
-  <option class="bg-black text-white" value="">All</option>
-  <option class="bg-black text-white" value="Free">Free</option>
-  <option class="bg-black text-white" value="Premium">Premium</option>
-  <option class="bg-black text-white" value="ULTRA">Ultra</option>
-  <option class="bg-black text-white" value="Free Extended">Free Extended</option>
-</select>
-
-</div>
-
-  <!-- Cards Container -->
-  <div id="licenses-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6"></div>
-  <div id="no-licenses" class="hidden text-center text-white/50">No licenses found.</div>
-  <div id="pagination-licenses" class="pagination mt-4"></div>
-</section>
-
-
-
-    <!-- Settings -->
-<section id="page-overview" class="hidden px-6 pt-28 sm:pt-20 md:pt-16">
-  <div class="text-center mb-6">
-    <h1 class="section-heading text-center mb-6">
-      Host System Overview
-    </h1>
-  </div>
-
-  <!-- Host Info Grid -->
-  <div id="system-stats" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 text-white">
-    <!-- Cards will be inserted via JS -->
-  </div>
-</section>
-
-  <!-- Confirm Modal -->
-  <div id="confirm-modal" class="fixed inset-0 bg-black/60 hidden flex items-center justify-center z-50">
-    <div class="bg-black/80 border border-white/20 rounded-2xl p-6 w-80 space-y-4 text-center relative">
-      <img src="/images/server.png"
-           alt="Server" class="mx-auto w-12 h-12 mb-2" />
-      <h2 class="text-xl font-semibold">Remove Steam Account?</h2>
-      <p class="text-white/70 text-sm">
-        Are you sure you want to remove this Steam account?<br>
-        This action is <span class="text-red-500 font-bold">irreversible</span>.
-      </p>
-      <div class="flex justify-center gap-4 mt-4">
-        <button id="confirm-no"
-                class="px-4 py-2 bg-white/10 border border-white/20 rounded hover:bg-white/20 transition">
-          Cancel
-        </button>
-        <button id="confirm-yes"
-                class="px-4 py-2 bg-red-600 hover:bg-red-700 rounded text-white transition">
-          Yes, remove
-        </button>
-      </div>
-      <button id="confirm-close" class="absolute top-3 right-3 text-white/50 hover:text-white">✕</button>
-    </div>
-  </div>
-
-    <footer class="text-white py-16 border-t border-white/10 mt-20">
-    <div class="max-w-7xl mx-auto text-center">
-      <p class="text-sm text-white/40">© 2025 Hour Booster</p>
-    </div>
-  </footer>
-
-  <style>
-  .stat-float {
-    position: absolute;
-    right: 0.5rem;
-    top: 0;
-    font-size: 0.875rem;
-    color: #4ade80; /* Tailwind green-400 */
-    font-weight: bold;
-    animation: floatUp 1s ease-out forwards;
-    pointer-events: none;
-    z-index: 10;
-  }
-  html, body {
-    background-color: #000; /* Black base background */
-    overscroll-behavior: none;
-    touch-action: manipulation;
-  }
-
-  body {
-    -webkit-overflow-scrolling: touch;
-    background-image: none !important;
-  }
-
-
-  @keyframes floatUp {
-    0%   { opacity: 1; transform: translateY(0); }
-    100% { opacity: 0; transform: translateY(-24px); }
-  }
-</style>
-
-
-
-<script>
-(() => {
-  const feedEl = document.getElementById('status-feed');
-  const formEl = document.getElementById('status-form');
-  const respEl = document.getElementById('status-response');
-  const idInput = document.getElementById('status-id');
-  const titleI  = document.getElementById('status-title');
-  const typeI   = document.getElementById('status-type');
-  const msgI    = document.getElementById('status-message');
-  const affI    = document.getElementById('status-affects');
-  const sevI    = document.getElementById('status-severity'); // NEW
-
-  function getSeverityColor(sev) {
-    switch (sev) {
-      case 'low': return 'border-green-500';
-      case 'medium': return 'border-yellow-500';
-      case 'high': return 'border-red-500';
-      default: return 'border-white/10';
-    }
-  }
-
-  async function loadStatuses() {
-    let data;
-    try {
-      const res = await fetch('/api/status');
-      data = await res.json();
-    } catch(err) {
-      console.error('Fetch status failed', err);
-      return;
-    }
-
-    feedEl.innerHTML = '';
-
-    data.updates.forEach((u, idx) => {
-      const borderClass = getSeverityColor(u.severity);
-      const box = document.createElement('div');
-      box.className = `feature-card p-4 rounded-lg space-y-2 ${borderClass}`;
-
-      const hdr = document.createElement('div');
-      hdr.className = 'flex justify-between items-center';
-      hdr.innerHTML = `
-        <h4 class="text-white font-bold">${u.title || 'Untitled Incident'}</h4>
-        <div class="flex gap-2">
-          <button data-cmd="edit"    data-idx="${idx}" class="text-yellow-300 hover:text-white text-sm">Edit</button>
-          <button data-cmd="resolve" data-idx="${idx}" class="text-green-400 hover:text-green-300 text-sm">Resolve</button>
-          <button data-cmd="delete"  data-idx="${idx}" class="text-red-400 hover:text-red-300 text-sm">Delete</button>
+      <p class="text-white/70 mb-6" id="steam-2fa-account">Account: <strong id="steam-2fa-account-name">-</strong></p>
+      <p class="text-white/60 text-sm mb-6">Enter the 6-digit code from your Steam authenticator or email:</p>
+      <form id="steam-2fa-form" class="space-y-4">
+        <div>
+          <input id="steam-2fa-code" type="text" maxlength="6" placeholder="000000" required
+            class="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white text-center text-2xl tracking-widest placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-red-500">
         </div>
-      `;
-      box.appendChild(hdr);
+        <div id="steam-2fa-error" class="hidden bg-red-500/20 border border-red-500/40 text-red-300 text-sm p-3 rounded-lg"></div>
+        <button type="submit" class="w-full py-2 bg-red-500 hover:bg-red-600 rounded-lg font-semibold transition">Submit Code</button>
+      </form>
+    </div>
+  </div>
 
-      const init = document.createElement('div');
-      init.className = 'mt-2 border-t border-white/10 pt-2';
-      init.innerHTML = `
-        <div class="text-xs text-white/60">${u.resolved ? 'Resolved' : 'Created'} — ${new Date(u.time).toLocaleString()}</div>
-        <div class="text-white text-sm">${u.message}</div>
-        ${u.affects?.length ? `<div class="text-xs text-white/50 mt-1">Affects: ${u.affects.join(', ')}</div>` : ''}
-      `;
-      box.appendChild(init);
+  <div id="logs-modal" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+    <div class="bg-[#0e0e10] border border-white/10 rounded-2xl max-w-2xl w-full p-8 max-h-[80vh] overflow-y-auto">
+      <div class="flex justify-between items-center mb-6">
+        <h2 class="text-2xl font-bold">Account Logs</h2>
+        <button onclick="closeLogsModal()" class="text-white/60 hover:text-white text-2xl">×</button>
+      </div>
+      <div id="logs-list" class="space-y-3">
+        <p class="text-white/50 text-center py-8">Loading logs...</p>
+      </div>
+    </div>
+  </div>
 
-      (u.timeline || []).forEach(entry => {
-        const ev = document.createElement('div');
-        ev.className = 'mt-2 border-t border-white/10 pt-2';
-        ev.innerHTML = `
-          <div class="text-xs text-white/60">${entry.subtype || 'Update'} — ${new Date(entry.time).toLocaleString()}</div>
-          <div class="text-white text-sm">${entry.message}</div>
-          ${entry.affects?.length ? `<div class="text-xs text-white/50 mt-1">Affects: ${entry.affects.join(', ')}</div>` : ''}
-        `;
-        box.appendChild(ev);
-      });
+  <div class="pt-24 pb-8 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+      <div class="bg-white/5 border border-white/10 rounded-2xl p-6">
+        <p class="text-white/60 text-sm mb-2">Total Hours Idled</p>
+        <h3 class="text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-red-500 to-red-700" id="total-hours">0.00</h3>
+      </div>
+      <div class="bg-white/5 border border-white/10 rounded-2xl p-6">
+        <p class="text-white/60 text-sm mb-2">Steam Accounts</p>
+        <h3 class="text-4xl font-bold" id="total-accounts">0</h3>
+      </div>
+      <div class="bg-white/5 border border-white/10 rounded-2xl p-6">
+        <p class="text-white/60 text-sm mb-2">Currently Boosting</p>
+        <h3 class="text-4xl font-bold text-green-500" id="accounts-running">0</h3>
+      </div>
+    </div>
 
-      feedEl.appendChild(box);
-    });
-  }
+    <div class="bg-white/5 border border-white/10 rounded-2xl p-8">
+      <div class="flex justify-between items-center mb-6">
+        <h2 class="text-2xl font-bold">Steam Accounts</h2>
+        <button onclick="openAddAccountModal()" class="px-6 py-2 bg-gradient-to-r from-red-500 to-red-700 hover:from-red-600 hover:to-red-800 rounded-lg font-semibold transition">
+          + Add Account
+        </button>
+      </div>
 
-  async function openEdit(idx) {
-    const res = await fetch('/api/status');
-    const { updates } = await res.json();
-    const u = updates[idx];
-    idInput.value = idx;
-    titleI.value  = u.title || '';
-    typeI.value   = u.type || 'info';
-    affI.value    = (u.affects || []).join(', ');
-    msgI.value    = '';
-    sevI.value    = u.severity || 'low';
-    formEl.scrollIntoView({ behavior: 'smooth' });
-  }
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="border-b border-white/10">
+              <th class="text-left py-3 px-4 text-white/70 font-semibold">Uptime</th>
+              <th class="text-left py-3 px-4 text-white/70 font-semibold">Username</th>
+              <th class="text-left py-3 px-4 text-white/70 font-semibold">Hours Gained</th>
+              <th class="text-left py-3 px-4 text-white/70 font-semibold">Games</th>
+              <th class="text-left py-3 px-4 text-white/70 font-semibold">Status</th>
+              <th class="text-left py-3 px-4 text-white/70 font-semibold">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="accounts-list">
+            <tr>
+              <td colspan="6" class="text-center py-8 text-white/50">Loading accounts...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
 
-  formEl.addEventListener('submit', async e => {
-    e.preventDefault();
-    const idx = idInput.value;
-    const payload = {
-      title: titleI.value.trim(),
-      type: typeI.value,
-      message: msgI.value.trim(),
-      severity: sevI.value,
-      affects: affI.value.split(',').map(s => s.trim()).filter(Boolean)
-    };
-    let url = '/api/status';
-    if (idx) {
-      url = '/api/status/update';
-      payload.index = Number(idx);
+  <div id="add-account-modal" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+    <div class="bg-[#0e0e10] border border-white/10 rounded-2xl max-w-md w-full p-8">
+      <h2 class="text-2xl font-bold mb-6">Add Steam Account</h2>
+      <form id="add-account-form" class="space-y-4">
+        <div>
+          <label class="block text-white/70 mb-2 text-sm font-medium">Steam Username</label>
+          <input id="steam-username" type="text" required
+            class="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-red-500">
+        </div>
+        <div>
+          <label class="block text-white/70 mb-2 text-sm font-medium">Password</label>
+          <input id="steam-password" type="password" required
+            class="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-red-500">
+        </div>
+        <div>
+          <label class="block text-white/70 mb-2 text-sm font-medium">Game App IDs (comma-separated, optional)</label>
+          <input id="game-ids" type="text" placeholder="570,730,440"
+            class="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-red-500">
+          <p class="text-white/50 text-xs mt-1">Example: 570 (Dota 2), 730 (CS:GO), 440 (TF2)</p>
+        </div>
+        <div id="add-account-error" class="hidden bg-red-500/20 border border-red-500/40 text-red-300 text-sm p-3 rounded-lg"></div>
+        <div class="flex gap-4">
+          <button type="submit" class="flex-1 py-2 bg-red-500 hover:bg-red-600 rounded-lg font-semibold transition">Add</button>
+          <button type="button" onclick="closeAddAccountModal()" class="flex-1 py-2 bg-white/10 hover:bg-white/20 rounded-lg font-semibold transition">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="edit-games-modal" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+    <div class="bg-[#0e0e10] border border-white/10 rounded-2xl max-w-2xl w-full p-8 max-h-[80vh] overflow-y-auto">
+      <div class="flex justify-between items-center mb-6">
+        <h2 class="text-2xl font-bold">Edit Games</h2>
+        <button type="button" onclick="closeEditGamesModal()" class="text-white/60 hover:text-white text-2xl">×</button>
+      </div>
+      <form id="edit-games-form" class="space-y-6">
+        <div>
+          <label class="block text-white/70 mb-3 text-sm font-medium">Search & Add Games</label>
+          <input id="game-search-input" type="text" placeholder="Search game name or enter App ID (e.g., 570, Dota, CS:GO)"
+            class="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-red-500 mb-4">
+          <div id="game-search-results" class="grid grid-cols-2 gap-2 max-h-[300px] overflow-y-auto"></div>
+        </div>
+
+        <div>
+          <label class="block text-white/70 mb-3 text-sm font-medium">Selected Games</label>
+          <div id="selected-games-container" class="grid grid-cols-3 gap-3 bg-white/5 p-4 rounded-lg border border-white/10 min-h-[150px]">
+            <p class="text-white/50 text-sm col-span-3 text-center py-8">No games selected</p>
+          </div>
+        </div>
+
+        <div id="edit-games-error" class="hidden bg-red-500/20 border border-red-500/40 text-red-300 text-sm p-3 rounded-lg"></div>
+        <div class="flex gap-4">
+          <button type="submit" class="flex-1 py-2 bg-red-500 hover:bg-red-600 rounded-lg font-semibold transition">Save Games</button>
+          <button type="button" onclick="closeEditGamesModal()" class="flex-1 py-2 bg-white/10 hover:bg-white/20 rounded-lg font-semibold transition">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="account-settings-modal" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+    <div class="bg-[#0e0e10] border border-white/10 rounded-2xl max-w-md w-full p-8 max-h-[80vh] overflow-y-auto">
+      <div class="flex justify-between items-center mb-6">
+        <h2 class="text-2xl font-bold">Account Settings</h2>
+        <button onclick="closeSettingsModal()" class="text-white/60 hover:text-white text-2xl">×</button>
+      </div>
+      <form id="account-settings-form" class="space-y-4">
+        <div>
+          <label class="flex items-center gap-3">
+            <input id="auto-restart-check" type="checkbox" class="w-4 h-4 rounded bg-white/10 border border-white/20 cursor-pointer">
+            <span class="text-white/70 text-sm font-medium">Auto-Restart on crash</span>
+          </label>
+        </div>
+        <div>
+          <label class="flex items-center gap-3">
+            <input id="offline-mode-check" type="checkbox" class="w-4 h-4 rounded bg-white/10 border border-white/20 cursor-pointer">
+            <span class="text-white/70 text-sm font-medium">Offline Mode</span>
+          </label>
+        </div>
+        <div>
+          <label class="flex items-center gap-3">
+            <input id="game-rotation-check" type="checkbox" class="w-4 h-4 rounded bg-white/10 border border-white/20 cursor-pointer">
+            <span class="text-white/70 text-sm font-medium">Enable Game Rotation</span>
+          </label>
+          <input id="rotation-interval" type="number" placeholder="Interval (ms)" value="3600000"
+            class="w-full px-4 py-2 mt-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-red-500 text-sm">
+        </div>
+        <div>
+          <label class="block text-white/70 mb-2 text-sm font-medium">Schedule Start Time (HH:MM)</label>
+          <input id="schedule-start" type="text" placeholder="09:00"
+            class="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-red-500">
+        </div>
+        <div>
+          <label class="block text-white/70 mb-2 text-sm font-medium">Schedule Stop Time (HH:MM)</label>
+          <input id="schedule-stop" type="text" placeholder="22:00"
+            class="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-red-500">
+        </div>
+        <div>
+          <label class="block text-white/70 mb-2 text-sm font-medium">Proxy URL (optional)</label>
+          <input id="proxy-url" type="text" placeholder="http://proxy:port"
+            class="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-red-500">
+        </div>
+        <div id="settings-error" class="hidden bg-red-500/20 border border-red-500/40 text-red-300 text-sm p-3 rounded-lg"></div>
+        <div class="flex gap-4">
+          <button type="submit" class="flex-1 py-2 bg-red-500 hover:bg-red-600 rounded-lg font-semibold transition">Save Settings</button>
+          <button type="button" onclick="closeSettingsModal()" class="flex-1 py-2 bg-white/10 hover:bg-white/20 rounded-lg font-semibold transition">Close</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+  <style>
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      padding: 16px 20px;
+      border-radius: 8px;
+      z-index: [10000];
+      animation: slideIn 0.3s ease-out;
+      max-width: 400px;
     }
-    const res = await fetch(url, {
-      method: 'POST',
-      headers: { 'Content-Type':'application/json' },
-      body: JSON.stringify(payload)
-    });
-
-    const ok = res.ok;
-    respEl.textContent = ok ? '✅ Saved!' : '❌ Error';
-    respEl.classList.remove('hidden');
-    setTimeout(() => respEl.classList.add('hidden'), 2000);
-    if (ok) {
-      formEl.reset();
-      idInput.value = '';
-      loadStatuses();
+    .toast-error { background: #dc2626; color: white; border: 1px solid #991b1b; }
+    .toast-success { background: #16a34a; color: white; border: 1px solid #15803d; }
+    .toast-info { background: #0ea5e9; color: white; border: 1px solid #0284c7; }
+    @keyframes slideIn {
+      from { transform: translateX(420px); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
     }
-  });
-
-  feedEl.addEventListener('click', async e => {
-    const b = e.target.closest('button');
-    if (!b) return;
-    const cmd = b.dataset.cmd, idx = Number(b.dataset.idx);
-    if (cmd === 'edit') return openEdit(idx);
-    const path = cmd === 'resolve' ? '/api/status/resolve' : '/api/status/delete';
-    await fetch(path, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ index: idx })
-    });
-    loadStatuses();
-  });
-
-  document.addEventListener('DOMContentLoaded', loadStatuses);
-})();
-</script>
-
-
+    @keyframes slideOut {
+      from { transform: translateX(0); opacity: 1; }
+      to { transform: translateX(420px); opacity: 0; }
+    }
+    .toast.hide { animation: slideOut 0.3s ease-out forwards; }
+  </style>
 
   <script>
+    function showToast(message, type = 'info', duration = 3000) {
+      const container = document.createElement('div');
+      container.className = `toast toast-${type}`;
+      container.textContent = message;
+      document.body.appendChild(container);
+
+      setTimeout(() => {
+        container.classList.add('hide');
+        setTimeout(() => container.remove(), 300);
+      }, duration);
+    }
+
+    const token = localStorage.getItem('token');
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+
+    if (!token || !user.id) {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      window.location.href = '/login';
+    }
+
+    document.getElementById('username').textContent = user.username || 'User';
+    let currentEditingAccount = null;
+    let currentSteam2FAUsername = null;
+
     const socket = io();
+    socket.on('connect', () => {
+      socket.emit('register-user', user.id);
+    });
 
+    socket.on('show-2fa-modal', (data) => {
+      showSteam2FAModalForAccount(data.username);
+    });
 
-document.addEventListener('DOMContentLoaded', () => {
-    socket.emit('requestSystemStats');
-  });
+    socket.on('account-status-change', (data) => {
+      setBotStatus(data.username, { status: data.status });
+      loadAccounts();
+    });
 
-  const systemInfoKeys = [
-    { key: 'hostname', label: 'Hostname' },
-    { key: 'localIp', label: 'Local IP Address' },
-    { key: 'platform', label: 'Platform' },
-    { key: 'arch', label: 'Architecture' },
-    { key: 'cpuModel', label: 'CPU' },
-    { key: 'cpuCores', label: 'CPU Cores' },
-    { key: 'cpuUsage', label: 'CPU Usage %' },
-    { key: 'ramTotal', label: 'Total RAM' },
-    { key: 'ramUsed', label: 'Used RAM' },
-    { key: 'ramUsage', label: 'RAM Usage %' },
-    { key: 'uptime', label: 'Uptime' },
-    { key: 'diskTotal', label: 'Disk Size' },
-    { key: 'diskUsed', label: 'Disk Used' },
-    { key: 'diskUsage', label: 'Disk Usage %' },
-    { key: 'cpuTemp', label: 'CPU Temperature' },
-    { key: 'gpuName', label: 'GPU' },
-    { key: 'gpuTemp', label: 'GPU Temperature' },
-    { key: 'gpuUsage', label: 'GPU Usage %' },
-    { key: 'networkSpeed', label: 'Network Speed' },
-    { key: 'macAddress', label: 'MAC Address' },
-  ];
+    socket.on('log-added', (data) => {
+      loadAccounts();
+    });
 
-  socket.on('systemStats', (stats) => {
-    const container = document.getElementById("system-stats");
-    container.innerHTML = '';
+    document.getElementById('steam-2fa-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const code = document.getElementById('steam-2fa-code').value;
+      const errorDiv = document.getElementById('steam-2fa-error');
+      const username = currentSteam2FAUsername;
 
-    // Special composite cards
-    const ramCard = document.createElement("div");
-    ramCard.className = "feature-card p-5 bg-white/5 rounded-lg border border-white/10 shadow-md backdrop-blur";
-    ramCard.innerHTML = `
-      <div class="text-sm uppercase text-white/60">RAM</div>
-      <div class="text-white text-sm">${stats.ramUsed} / ${stats.ramTotal}</div>
-      <div class="w-full h-3 bg-white/10 rounded overflow-hidden mt-1">
-        <div class="bg-red-500 h-full" style="width: ${stats.ramUsage || 0}%"></div>
-      </div>
-      <div class="text-xs text-white/50 mt-1">Usage: ${stats.ramUsage}%</div>
-    `;
-    container.appendChild(ramCard);
-
-    const cpuCard = document.createElement("div");
-    cpuCard.className = "feature-card p-5 bg-white/5 rounded-lg border border-white/10 shadow-md backdrop-blur";
-    cpuCard.innerHTML = `
-      <div class="text-sm uppercase text-white/60">CPU Load</div>
-      <div class="text-white text-sm">${stats.cpuModel}</div>
-      <div class="w-full h-3 bg-white/10 rounded overflow-hidden mt-1">
-        <div class="bg-yellow-400 h-full" style="width: ${stats.cpuUsage || 0}%"></div>
-      </div>
-      <div class="text-xs text-white/50 mt-1">Usage: ${stats.cpuUsage}% — Temp: ${stats.cpuTemp}</div>
-    `;
-    container.appendChild(cpuCard);
-
-    const diskCard = document.createElement("div");
-    diskCard.className = "feature-card p-5 bg-white/5 rounded-lg border border-white/10 shadow-md backdrop-blur";
-    diskCard.innerHTML = `
-      <div class="text-sm uppercase text-white/60">Disk</div>
-      <div class="text-white text-sm">${stats.diskUsed} / ${stats.diskTotal}</div>
-      <div class="w-full h-3 bg-white/10 rounded overflow-hidden mt-1">
-        <div class="bg-blue-500 h-full" style="width: ${stats.diskUsage || 0}%"></div>
-      </div>
-      <div class="text-xs text-white/50 mt-1">Usage: ${stats.diskUsage}%</div>
-    `;
-    container.appendChild(diskCard);
-
-    // Loop through remaining stats
-    systemInfoKeys.forEach(({ key, label }) => {
-      // Already rendered in composites
-      if (["cpuUsage", "cpuModel", "ramTotal", "ramUsed", "ramUsage", "diskTotal", "diskUsed", "diskUsage", "cpuTemp"].includes(key)) return;
-
-      const value = stats[key] || '—';
-      const card = document.createElement("div");
-      card.className = "feature-card p-5 flex flex-col gap-2 bg-white/5 rounded-lg border border-white/10 shadow-md backdrop-blur";
-
-      if (key === 'localIp') {
-        card.innerHTML = `
-          <div class="text-sm uppercase text-white/60">${label}</div>
-          <div class="text-white/20 text-sm transition-opacity duration-300 ease-in hover:text-white cursor-pointer">${value}</div>
-        `;
-      } else {
-        card.innerHTML = `
-          <div class="text-sm uppercase text-white/60">${label}</div>
-          <div class="text-xl font-bold text-white truncate">${value}</div>
-        `;
+      if (!username) {
+        errorDiv.textContent = 'No account selected';
+        errorDiv.classList.remove('hidden');
+        return;
       }
 
-      container.appendChild(card);
-    });
-  });
+      if (code.length !== 6 || isNaN(code)) {
+        errorDiv.textContent = 'Please enter a valid 6-digit code';
+        errorDiv.classList.remove('hidden');
+        return;
+      }
 
-    // Sidebar open/close
-const sidebar = document.getElementById('mobile-sidebar');
-const openBtn = document.getElementById('open-sidebar');
-const closeBtn = document.getElementById('close-sidebar');
-
-openBtn?.addEventListener('click', () => {
-  sidebar.classList.remove('-translate-x-full');
-});
-
-closeBtn?.addEventListener('click', () => {
-  sidebar.classList.add('-translate-x-full');
-});
-
-// scrolling
-function toggleBodyScroll(lock) {
-  document.body.style.overflow = lock ? 'hidden' : '';
-}
-
-openBtn?.addEventListener('click', () => {
-  sidebar.classList.remove('-translate-x-full');
-  toggleBodyScroll(true);
-});
-
-closeBtn?.addEventListener('click', () => {
-  sidebar.classList.add('-translate-x-full');
-  toggleBodyScroll(false);
-});
-
-
-
-    // Tab navigation
-function showPage(page) {
-  document.querySelectorAll('.nav-tab').forEach(btn => {
-    btn.classList.remove('active');
-    if (btn.dataset.target === page) btn.classList.add('active');
-  });
-
-  document.querySelectorAll('main > section').forEach(section => {
-    section.classList.add('hidden');
-  });
-
-  const pageEl = document.getElementById('page-' + page);
-  if (pageEl) pageEl.classList.remove('hidden');
-}
-
-// Handle internal navigation without reload
-function navigateTo(route) {
-  const page = route.split('/').pop() || 'dashboard';
-  showPage(page);
-  history.pushState({ page }, '', route);
-}
-
-document.querySelectorAll('.nav-tab').forEach(btn => {
-  btn.addEventListener('click', () => {
-    const route = btn.dataset.route;
-    navigateTo(route);
-  });
-});
-
-window.addEventListener('popstate', (e) => {
-  const page = (e.state && e.state.page) || 'dashboard';
-  showPage(page);
-});
-
-// Initial page load
-  window.addEventListener('load', () => {
-    const loader = document.getElementById("loader");
-    if (loader) {
-      loader.style.opacity = "0";
-      loader.style.transition = "opacity 0.5s ease";
-      setTimeout(() => loader.remove(), 550);
-      document.body.classList.remove("overflow-hidden");
-    }
-  });
-  
-window.addEventListener('DOMContentLoaded', () => {
-  const path = window.location.pathname;
-  const page = path.split('/').pop() || 'dashboard';
-  showPage(page);
-});
-
-
-    // Accounts logic
-    const container    = document.getElementById('accounts-container');
-    const searchInput  = document.getElementById('account-search');
-    const noResults    = document.getElementById('no-results');
-    const paginationEl = document.getElementById('pagination');
-    let accountList = [], currentPage = 1, pageSize = 9;
-
-    socket.emit('requestAccounts');
-    socket.on('accounts', list => {
-      accountList = list;
-      renderPage();
-    });
-
-    searchInput.addEventListener('input', () => {
-      currentPage = 1;
-      renderPage();
-    });
-
-    function renderPage() {
-      const term      = searchInput.value.toLowerCase().trim();
-      const filtered = accountList
-        .filter(acc =>
-          acc.username.toLowerCase().includes(term) ||
-          (acc.discordOwnerId || '').toLowerCase().includes(term)
-        )
-        .sort((a, b) => (b.isRunning === true) - (a.isRunning === true)); // running first
-
-      const total     = filtered.length;
-      const maxPages  = Math.ceil(total / pageSize) || 1;
-      if (currentPage > maxPages) currentPage = maxPages;
-      const start     = (currentPage - 1) * pageSize;
-      const pageItems = filtered.slice(start, start + pageSize);
-
-      container.innerHTML = '';
-      if (!pageItems.length) {
-        noResults.classList.remove('hidden');
-      } else {
-        noResults.classList.add('hidden');
-        pageItems.forEach(acc => {
-          const card = document.createElement('div');
-          card.className = 'feature-card p-4 space-y-2 text-sm leading-relaxed';
-          card.innerHTML = `
-            <div><strong>${acc.username}</strong></div>
-            <div><strong>ID:</strong> ${acc.id}</div>
-            <div><strong>Owner:</strong> ${acc.discordOwnerId || '—'}</div>
-            <div class="flex gap-3 mt-2 items-center">
-              <button class="copy-id px-3 py-1 bg-white/10 border border-white/20 rounded hover:bg-white/20 text-xs" data-id="${acc.id}">
-                Copy ID
-              </button>
-              <button class="delete-btn px-3 py-1 bg-red-600 border border-red-600 rounded hover:bg-red text-xs" data-username="${acc.username}">
-                Remove
-              </button>
-              <span class="text-xs px-3 py-1 rounded ${acc.isRunning ? 'bg-green-500/20 text-green-400 border border-green-400/40' : 'bg-red-500/20 text-red-400 border border-red-400/40'}">
-                ${acc.isRunning ? 'Running' : 'Stopped'}
-              </span>
-            </div>`;
-          container.appendChild(card);
+      try {
+        const response = await fetch(`/api/accounts/${username}/submit-2fa`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+          },
+          body: JSON.stringify({ code }),
         });
+
+        if (!response.ok) {
+          const data = await response.json();
+          errorDiv.textContent = data.error || 'Invalid code';
+          errorDiv.classList.remove('hidden');
+          return;
+        }
+
+        const data = await response.json();
+
+        close2FAModal();
+        showToast(`2FA code submitted for ${username}`, 'success', 3000);
+        loadAccounts();
+      } catch (error) {
+        console.error('2FA submission error:', error);
+        errorDiv.textContent = 'An error occurred. Please try again.';
+        errorDiv.classList.remove('hidden');
       }
+    });
 
-      // Pagination controls
-      paginationEl.innerHTML = `
-        <button ${currentPage===1?'disabled':''} onclick="changePage(1)"
-          class="px-3 py-1 text-lg rounded bg-white/10 border border-white/20 transition ${currentPage===1?'text-white/40 cursor-not-allowed':'text-white hover:bg-white/20'}">«</button>
-        <button ${currentPage===1?'disabled':''} onclick="changePage(currentPage-1)"
-          class="px-3 py-1 text-lg rounded bg-white/10 border border-white/20 transition ${currentPage===1?'text-white/40 cursor-not-allowed':'text-white hover:bg-white/20'}">‹</button>
-        <span class="px-2 text-white/70">${currentPage} / ${maxPages}</span>
-        <button ${currentPage===maxPages?'disabled':''} onclick="changePage(currentPage+1)"
-          class="px-3 py-1 text-lg rounded bg-white/10 border border-white/20 transition ${currentPage===maxPages?'text-white/40 cursor-not-allowed':'text-white hover:bg-white/20'}">›</button>
-        <button ${currentPage===maxPages?'disabled':''} onclick="changePage(maxPages)"
-          class="px-3 py-1 text-lg rounded bg-white/10 border border-white/20 transition ${currentPage===maxPages?'text-white/40 cursor-not-allowed':'text-white hover:bg-white/20'}">»</button>
-      `;
+    async function loadAccounts() {
+      try {
+        if (!token) {
+          console.error('No token available');
+          window.location.href = '/login';
+          return;
+        }
+
+        console.log('Loading accounts with token:', token.substring(0, 20) + '...');
+
+        const response = await fetch('/api/accounts', {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+        });
+
+        console.log('Response status:', response.status);
+
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}));
+          console.error('API error:', response.status, errorData);
+
+          if (response.status === 401) {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            window.location.href = '/login';
+            return;
+          }
+
+          throw new Error(errorData.error || `Failed to load accounts (${response.status})`);
+        }
+
+        const accounts = await response.json();
+        console.log('Loaded accounts:', accounts);
+        renderAccounts(accounts);
+        updateStats(accounts);
+      } catch (error) {
+        console.error('Load accounts error:', error.message);
+        console.error('Full error:', error);
+        showToast('Failed to load accounts: ' + error.message, 'error', 5000);
+      }
     }
 
-    function changePage(page) {
-      currentPage = page;
-      renderPage();
+    function updateStats(accounts) {
+      const totalHours = accounts.reduce((sum, acc) => sum + (acc.totalHoursIdled || 0), 0);
+      const running = accounts.filter(acc => acc.isRunning).length;
+
+      document.getElementById('total-hours').textContent = totalHours.toFixed(2);
+      document.getElementById('total-accounts').textContent = accounts.length;
+      document.getElementById('accounts-running').textContent = running;
     }
 
-    // Handle card actions and modal
-    let pendingDelete = null;
+    function renderAccounts(accounts) {
+      const list = document.getElementById('accounts-list');
 
-    container.addEventListener('click', handleAction);
-    searchInput.addEventListener('click', handleAction);
-
-    function handleAction(e) {
-      const btn = e.target.closest('button');
-      if (!btn) return;
-
-      if (btn.classList.contains('copy-id')) {
-        navigator.clipboard.writeText(btn.dataset.id);
-        btn.textContent = '✅';
-        setTimeout(() => btn.textContent = 'Copy ID', 1000);
+      if (accounts.length === 0) {
+        list.innerHTML = '<tr><td colspan="6" class="text-center py-8 text-white/50">No Steam accounts yet. Add one to get started!</td></tr>';
         return;
       }
 
-      if (btn.classList.contains('toggle-account')) {
-        socket.emit('toggle-account', btn.dataset.username);
-        return;
-      }
+      list.innerHTML = accounts.map(acc => {
+        const statusIcon = acc.isRunning ? '🟢' : '⚪';
+        const statusText = acc.isRunning ? 'Online' : 'Offline';
+        const gameCount = acc.games ? acc.games.length : 0;
 
-      if (btn.classList.contains('delete-btn')) {
-        pendingDelete = btn.dataset.username;
-        document.getElementById('confirm-modal').classList.remove('hidden');
-        return;
+        return `
+          <tr class="border-b border-white/10">
+            <td class="py-3 px-4">
+              <span class="text-white/60">${formatUptime(new Date(acc.createdAt))}</span>
+            </td>
+            <td class="py-3 px-4">
+              <span class="text-white font-medium">${acc.username}</span>
+            </td>
+            <td class="py-3 px-4">
+              <span class="text-white">${(acc.totalHoursIdled || 0).toFixed(2)} hrs</span>
+            </td>
+            <td class="py-3 px-4">
+              <span class="text-white/70">${gameCount}/${gameCount}</span>
+            </td>
+            <td class="py-3 px-4">
+              <span class="text-white/70">${statusIcon} ${statusText}</span>
+            </td>
+            <td class="py-3 px-4">
+              <div class="flex gap-2">
+                <button onclick="startAccount('${acc.username}')" class="px-2 py-1 bg-white/10 hover:bg-white/20 text-white text-xs rounded transition">▶</button>
+                <button onclick="stopAccount('${acc.username}')" class="px-2 py-1 bg-white/10 hover:bg-white/20 text-white text-xs rounded transition">⏹</button>
+                <button onclick="openEditGamesModal('${acc.username}')" class="px-2 py-1 bg-white/10 hover:bg-white/20 text-white text-xs rounded transition">🎮</button>
+                <button onclick="openLogsModal('${acc.username}')" class="px-2 py-1 bg-white/10 hover:bg-white/20 text-white text-xs rounded transition">📋</button>
+                <button onclick="showSteamGuardInput('${acc.username}')" class="px-2 py-1 bg-white/10 hover:bg-white/20 text-white text-xs rounded transition">🔐</button>
+                <button onclick="deleteAccount('${acc.username}')" class="px-2 py-1 bg-red-600/20 hover:bg-red-600/30 text-red-300 text-xs rounded transition">🗑️</button>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function getLogTypeColor(type) {
+      const colors = {
+        'LOGIN': 'bg-green-500/20 text-green-400',
+        'LOGOUT': 'bg-red-500/20 text-red-400',
+        'ERROR': 'bg-red-600/20 text-red-300',
+        'STEAM_GUARD': 'bg-blue-500/20 text-blue-400',
+        'STATUS_CHANGE': 'bg-cyan-500/20 text-cyan-400',
+        'GAME_UPDATE': 'bg-purple-500/20 text-purple-400',
+      };
+      return colors[type] || 'bg-white/10 text-white/70';
+    }
+
+    async function openLogsModal(username) {
+      try {
+        const response = await fetch(`/api/accounts/${username}/logs`, {
+          headers: { 'Authorization': `Bearer ${token}` },
+        });
+
+        if (!response.ok) {
+          showToast('Failed to load logs', 'error', 3000);
+          return;
+        }
+
+        const data = await response.json();
+        const logsList = document.getElementById('logs-list');
+
+        if (data.logs.length === 0) {
+          logsList.innerHTML = '<p class="text-white/50 text-center py-8">No logs yet</p>';
+        } else {
+          logsList.innerHTML = data.logs.map(log => `
+            <div class="bg-white/5 border border-white/10 rounded-lg p-4">
+              <div class="flex justify-between items-start gap-2 mb-2">
+                <span class="px-2 py-1 rounded text-xs font-semibold ${getLogTypeColor(log.type)}">${log.type}</span>
+                <span class="text-white/50 text-xs">${new Date(log.createdAt).toLocaleString()}</span>
+              </div>
+              <p class="text-white/80 text-sm">${log.message}</p>
+            </div>
+          `).join('');
+        }
+
+        document.getElementById('logs-modal').classList.remove('hidden');
+      } catch (error) {
+        console.error('Load logs error:', error);
+        showToast('Error loading logs', 'error', 3000);
       }
     }
 
+    function closeLogsModal() {
+      document.getElementById('logs-modal').classList.add('hidden');
+    }
 
-    const licenseContainer = document.getElementById('licenses-container');
-const licenseSearch = document.getElementById('license-search');
-const licenseNoResults = document.getElementById('no-licenses');
-const licensePagination = document.getElementById('pagination-licenses');
+    let accountStatuses = {};
 
-let licenseList = [], licensePage = 1, licensePageSize = 9;
+    function getBotStatus(username) {
+      return accountStatuses[username] || { running: false, status: 'offline' };
+    }
 
-socket.emit('requestLicenses');
-socket.on('licenses', (list) => {
-  licenseList = list;
-  renderLicenses();
-});
+    function setBotStatus(username, status) {
+      accountStatuses[username] = status;
+    }
 
-licenseSearch.addEventListener('input', () => {
-  licensePage = 1;
-  renderLicenses();
-});
-document.getElementById('license-type-filter').addEventListener('change', () => {
-  licensePage = 1;
-  renderLicenses();
-});
+    function showSteam2FAModalForAccount(username) {
+      currentSteam2FAUsername = username;
+      document.getElementById('steam-2fa-code').value = '';
+      document.getElementById('steam-2fa-code').focus();
+      document.getElementById('steam-2fa-error').classList.add('hidden');
+      document.getElementById('steam-2fa-account-name').textContent = username;
+      document.getElementById('steam-2fa-modal').classList.remove('hidden');
+    }
 
+    function showSteamGuardInput(username) {
+      showSteam2FAModalForAccount(username);
+    }
 
-function renderLicenses() {
-  const term = licenseSearch.value.toLowerCase().trim();
-  const selectedType = document.getElementById('license-type-filter').value;
+    function formatUptime(date) {
+      const now = new Date();
+      const diff = now - date;
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      return `${days}d ${hours}h`;
+    }
 
-  const filtered = licenseList
-    .filter(l =>
-      (l.code.toLowerCase().includes(term) ||
-        (l.discordAccount?.discordId || '').toLowerCase().includes(term)) &&
-      (selectedType === '' || l.licenseType?.name === selectedType)
-    )
-    .sort((a, b) => a.isUsed - b.isUsed); // inactive first
+    function openAddAccountModal() {
+      document.getElementById('add-account-modal').classList.remove('hidden');
+    }
 
-  const total = filtered.length;
-  const maxPages = Math.ceil(total / licensePageSize) || 1;
-  if (licensePage > maxPages) licensePage = maxPages;
-  const start = (licensePage - 1) * licensePageSize;
-  const pageItems = filtered.slice(start, start + licensePageSize);
+    function closeAddAccountModal() {
+      document.getElementById('add-account-modal').classList.add('hidden');
+      document.getElementById('add-account-form').reset();
+    }
 
-  licenseContainer.innerHTML = '';
-  if (!pageItems.length) {
-    licenseNoResults.classList.remove('hidden');
-  } else {
-    licenseNoResults.classList.add('hidden');
-    pageItems.forEach(lic => {
-      const card = document.createElement('div');
-      card.className = 'feature-card p-4 space-y-2 text-sm leading-relaxed';
-      card.innerHTML = `
-        <div><strong>License:</strong> ${lic.code}</div>
-        <div><strong>Plan:</strong> ${lic.licenseType?.name || '—'}</div>
-        <div><strong>Status:</strong>
-          <span class="${lic.isUsed ? 'text-red-400' : 'text-green-400'}">
-            ${lic.isUsed ? 'Unavailable' : 'Available'}
-          </span>
-        </div>
-        <div class="flex gap-3 mt-2">
-          <button class="delete-license px-3 py-1 bg-red-600 hover:bg-red-700 rounded text-xs" data-code="${lic.code}">Remove</button>
-        </div>`;
-      licenseContainer.appendChild(card);
-    });
-  }
+    let selectedGames = new Map();
+    const popularGames = [
+      { appid: 570, name: 'Dota 2' },
+      { appid: 730, name: 'Counter-Strike 2' },
+      { appid: 440, name: 'Team Fortress 2' },
+      { appid: 252490, name: 'Rust' },
+      { appid: 813820, name: 'Lost Ark' },
+      { appid: 1313860, name: 'Core Keeper' },
+      { appid: 1516360, name: 'V Rising' },
+      { appid: 1499320, name: 'Valheim' },
+      { appid: 431960, name: 'Wallpaper Engine' },
+      { appid: 221540, name: 'Unturned' },
+      { appid: 108600, name: 'Project Zomboid' },
+      { appid: 1222670, name: 'Grounded' },
+      { appid: 976310, name: 'Realm Royale' },
+      { appid: 1058020, name: 'Project Winter' },
+      { appid: 1340540, name: 'Valheim' },
+    ];
 
-  licensePagination.innerHTML = `
-    <button ${licensePage === 1 ? 'disabled' : ''} onclick="changeLicensePage(1)"
-      class="px-3 py-1 text-lg rounded bg-white/10 border border-white/20 ${licensePage === 1 ? 'text-white/40 cursor-not-allowed' : 'text-white hover:bg-white/20'}">«</button>
-    <button ${licensePage === 1 ? 'disabled' : ''} onclick="changeLicensePage(licensePage-1)"
-      class="px-3 py-1 text-lg rounded bg-white/10 border border-white/20 ${licensePage === 1 ? 'text-white/40 cursor-not-allowed' : 'text-white hover:bg-white/20'}">‹</button>
-    <span class="px-2 text-white/70">${licensePage} / ${maxPages}</span>
-    <button ${licensePage === maxPages ? 'disabled' : ''} onclick="changeLicensePage(licensePage+1)"
-      class="px-3 py-1 text-lg rounded bg-white/10 border border-white/20 ${licensePage === maxPages ? 'text-white/40 cursor-not-allowed' : 'text-white hover:bg-white/20'}">›</button>
-    <button ${licensePage === maxPages ? 'disabled' : ''} onclick="changeLicensePage(maxPages)"
-      class="px-3 py-1 text-lg rounded bg-white/10 border border-white/20 ${licensePage === maxPages ? 'text-white/40 cursor-not-allowed' : 'text-white hover:bg-white/20'}">»</button>`;
-}
+    function openEditGamesModal(username) {
+      currentEditingAccount = username;
+      selectedGames.clear();
 
-function changeLicensePage(page) {
-  licensePage = page;
-  renderLicenses();
-}
-
-// Optional: Button handling for license actions
-licenseContainer.addEventListener('click', (e) => {
-  const btn = e.target.closest('button');
-  if (!btn) return;
-  const code = btn.dataset.code;
-  if (btn.classList.contains('delete-license')) {
-    socket.emit('delete-license', code);
-  }
-});
-
-
-
-    // Users logic
-const userContainer    = document.getElementById('users-container');
-const userSearchInput  = document.getElementById('user-search');
-const userNoResults    = document.getElementById('no-users');
-const userPaginationEl = document.getElementById('pagination-users');
-let userList = [], userPage = 1, userPageSize = 9;
-
-socket.emit('requestUsers');
-socket.on('users', list => {
-  userList = list;
-  renderUsers();
-});
-
-userSearchInput.addEventListener('input', () => {
-  userPage = 1;
-  renderUsers();
-});
-
-function renderUsers() {
-  const term = userSearchInput.value.toLowerCase().trim();
-  const filtered = userList.filter(user =>
-    user.discordId.toLowerCase().includes(term) ||
-    (user.licenseCode || '').toLowerCase().includes(term)
-  );
-  const total = filtered.length;
-  const maxPages = Math.ceil(total / userPageSize) || 1;
-  if (userPage > maxPages) userPage = maxPages;
-  const start = (userPage - 1) * userPageSize;
-  const pageItems = filtered.slice(start, start + userPageSize);
-
-  userContainer.innerHTML = '';
-  if (!pageItems.length) {
-    userNoResults.classList.remove('hidden');
-  } else {
-    userNoResults.classList.add('hidden');
-    pageItems.forEach(user => {
-      const card = document.createElement('div');
-      card.className = 'feature-card p-4 space-y-2 text-sm leading-relaxed';
-      card.innerHTML = `
-        <div><strong>${user.discordId}</strong></div>
-        <div><strong>License:</strong> ${user.licenseCode || '—'}</div>
-        <div><strong>Status:</strong> ${user.isBanned ? 'Banned' : 'Active'}</div>
-        <div class="flex gap-3 mt-2">
-          <button class="revoke-license px-3 py-1 gradient-bg rounded text-xs" data-id="${user.discordId}">Revoke</button>
-          <button class="delete-user px-3 py-1 bg-red-600 hover:bg-red-700 rounded text-xs" data-id="${user.discordId}">Remove</button>
-        </div>`;
-      userContainer.appendChild(card);
-    });
-  }
-
-          //   <button class="ban-user px-3 py-1 bg-white/10 border border-white/20 rounded text-xs hover:bg-white/20" data-id="${user.discordId}">
-          //   ${user.isBanned ? 'Unban' : 'Ban'}
-          // </button>
-
-  userPaginationEl.innerHTML = `
-    <button ${userPage === 1 ? 'disabled' : ''} onclick="changeUserPage(1)"
-      class="px-3 py-1 text-lg rounded bg-white/10 border border-white/20 transition ${userPage === 1 ? 'text-white/40 cursor-not-allowed' : 'text-white hover:bg-white/20'}">«</button>
-    <button ${userPage === 1 ? 'disabled' : ''} onclick="changeUserPage(userPage-1)"
-      class="px-3 py-1 text-lg rounded bg-white/10 border border-white/20 transition ${userPage === 1 ? 'text-white/40 cursor-not-allowed' : 'text-white hover:bg-white/20'}">‹</button>
-    <span class="px-2 text-white/70">${userPage} / ${maxPages}</span>
-    <button ${userPage === maxPages ? 'disabled' : ''} onclick="changeUserPage(userPage+1)"
-      class="px-3 py-1 text-lg rounded bg-white/10 border border-white/20 transition ${userPage === maxPages ? 'text-white/40 cursor-not-allowed' : 'text-white hover:bg-white/20'}">›</button>
-    <button ${userPage === maxPages ? 'disabled' : ''} onclick="changeUserPage(maxPages)"
-      class="px-3 py-1 text-lg rounded bg-white/10 border border-white/20 transition ${userPage === maxPages ? 'text-white/40 cursor-not-allowed' : 'text-white hover:bg-white/20'}">»</button>
-  `;
-}
-
-function changeUserPage(page) {
-  userPage = page;
-  renderUsers();
-}
-
-// User button actions
-userContainer.addEventListener('click', e => {
-  const btn = e.target.closest('button');
-  if (!btn) return;
-  const id = btn.dataset.id;
-  if (btn.classList.contains('revoke-license')) {
-    socket.emit('revoke-user', id);
-  }
-  if (btn.classList.contains('ban-user')) {
-    socket.emit('ban-user', id); // Make sure server toggles ban/unban
-  }
-  if (btn.classList.contains('delete-user')) {
-    socket.emit('delete-user', id);
-  }
-});
-
-
-    document.getElementById('confirm-no').onclick = () => {
-      pendingDelete = null;
-      document.getElementById('confirm-modal').classList.add('hidden');
-    };
-    document.getElementById('confirm-close').onclick = () => {
-      pendingDelete = null;
-      document.getElementById('confirm-modal').classList.add('hidden');
-    };
-    document.getElementById('confirm-yes').onclick = () => {
-      if (!pendingDelete) return;
-      socket.emit('delete-account', pendingDelete);
-      pendingDelete = null;
-      document.getElementById('confirm-modal').classList.add('hidden');
-    };
-
-    // Update list on server broadcast
-    socket.on('accounts', list => {
-      accountList = list;
-      renderPage();
-    });
-
-function animateStat(id, value, decimals = 0) {
-  const el = document.getElementById(id);
-  if (!el) return;
-
-  const container = el.parentElement;
-  const prev = parseFloat(el.dataset.value);
-  const start = isNaN(prev) ? 0 : prev;
-  const end = parseFloat(value.toFixed(decimals));
-
-  const diff = end - start;
-  if (diff === 0) return;
-
-  if (diff > 0.01) {
-    showStatFloat(container, `+${(diff).toFixed(decimals)}`);
-  }
-
-    if (diff > -0.01) {
-    showStatFloat(container, `-${(diff).toFixed(decimals)}`);
-  }
-
-  el.dataset.value = end;
-  const duration = 1500;
-  const frameRate = 60;
-  const steps = Math.ceil(duration / (1000 / frameRate));
-  const step = diff / steps;
-
-  let current = start;
-  let count = 0;
-
-  el.classList.remove('opacity-0');
-
-  function tick() {
-    if (count >= steps) {
-      el.textContent = end.toLocaleString(undefined, {
-        minimumFractionDigits: decimals,
-        maximumFractionDigits: decimals
+      fetch(`/api/accounts/${username}`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      }).then(r => r.json()).then(acc => {
+        if (acc.games && acc.games.length > 0) {
+          acc.games.forEach(appid => selectedGames.set(appid, `App ${appid}`));
+        }
+        renderSelectedGames();
       });
-      return;
+
+      document.getElementById('game-search-input').value = '';
+      document.getElementById('game-search-results').innerHTML = '';
+      renderPopularGames();
+      document.getElementById('edit-games-modal').classList.remove('hidden');
     }
 
-    current += step;
-    count++;
-    el.textContent = current.toLocaleString(undefined, {
-      minimumFractionDigits: decimals,
-      maximumFractionDigits: decimals
+    function renderPopularGames() {
+      const container = document.getElementById('game-search-results');
+      container.innerHTML = popularGames.map(game => `
+        <div onclick="toggleGameSelection(${game.appid}, '${game.name}', this)"
+          class="game-card bg-white/10 hover:bg-white/20 border border-white/20 rounded-lg p-2 cursor-pointer transition ${selectedGames.has(game.appid) ? 'border-red-500 bg-red-500/10' : ''}">
+          <img src="https://steamcdn-a.akamaihd.net/steam/apps/${game.appid}/header.jpg" alt="${game.name}" class="w-full h-16 object-cover rounded mb-1">
+          <p class="text-white text-xs font-medium truncate">${game.name}</p>
+        </div>
+      `).join('');
+    }
+
+    function toggleGameSelection(appid, name, element) {
+      if (selectedGames.has(appid)) {
+        selectedGames.delete(appid);
+        element.classList.remove('border-red-500', 'bg-red-500/10');
+        element.classList.add('border-white/20');
+      } else {
+        if (selectedGames.size >= 15) {
+          showToast('Maximum 15 games allowed', 'error', 3000);
+          return;
+        }
+        selectedGames.set(appid, name);
+        element.classList.add('border-red-500', 'bg-red-500/10');
+        element.classList.remove('border-white/20');
+      }
+      renderSelectedGames();
+    }
+
+    function renderSelectedGames() {
+      const container = document.getElementById('selected-games-container');
+      if (selectedGames.size === 0) {
+        container.innerHTML = '<p class="text-white/50 text-sm col-span-3 text-center py-8">No games selected</p>';
+        return;
+      }
+
+      container.innerHTML = Array.from(selectedGames.entries()).map(([appid, name]) => `
+        <div class="relative group">
+          <img src="https://steamcdn-a.akamaihd.net/steam/apps/${appid}/header.jpg" alt="${name}" class="w-full h-20 object-cover rounded">
+          <button type="button" onclick="event.preventDefault(); removeGameSelection(${appid})" class="absolute top-1 right-1 bg-red-600 hover:bg-red-700 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold opacity-0 group-hover:opacity-100 transition">×</button>
+        </div>
+      `).join('');
+    }
+
+    function removeGameSelection(appid) {
+      selectedGames.delete(appid);
+      renderSelectedGames();
+    }
+
+    function closeEditGamesModal() {
+      document.getElementById('edit-games-modal').classList.add('hidden');
+      document.getElementById('edit-games-form').reset();
+      selectedGames.clear();
+    }
+
+    document.getElementById('game-search-input').addEventListener('input', async (e) => {
+      const query = e.target.value.trim().toLowerCase();
+      const container = document.getElementById('game-search-results');
+
+      if (!query) {
+        renderPopularGames();
+        return;
+      }
+
+      const filtered = popularGames.filter(g =>
+        g.name.toLowerCase().includes(query) ||
+        g.appid.toString().includes(query)
+      );
+
+      if (filtered.length === 0) {
+        container.innerHTML = '<p class="col-span-2 text-white/50 text-center py-4 text-sm">No games found</p>';
+        return;
+      }
+
+      container.innerHTML = filtered.map(game => `
+        <div onclick="toggleGameSelection(${game.appid}, '${game.name}', this)"
+          class="game-card bg-white/10 hover:bg-white/20 border border-white/20 rounded-lg p-2 cursor-pointer transition ${selectedGames.has(game.appid) ? 'border-red-500 bg-red-500/10' : ''}">
+          <img src="https://steamcdn-a.akamaihd.net/steam/apps/${game.appid}/header.jpg" alt="${game.name}" class="w-full h-16 object-cover rounded mb-1">
+          <p class="text-white text-xs font-medium truncate">${game.name}</p>
+        </div>
+      `).join('');
     });
 
-    requestAnimationFrame(tick);
-  }
+    document.getElementById('add-account-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const username = document.getElementById('steam-username').value.trim();
+      const password = document.getElementById('steam-password').value;
+      const gameIds = document.getElementById('game-ids').value
+        .split(',')
+        .map(id => parseInt(id.trim()))
+        .filter(id => !isNaN(id));
 
-  tick();
-}
+      const errorDiv = document.getElementById('add-account-error');
+      errorDiv.classList.add('hidden');
+
+      // Validate username
+      if (!username) {
+        errorDiv.textContent = 'Username is required';
+        errorDiv.classList.remove('hidden');
+        return;
+      }
+      if (!/^[a-zA-Z0-9_-]{3,32}$/.test(username)) {
+        errorDiv.textContent = 'Username must be 3-32 characters and contain only letters, numbers, underscores, and hyphens';
+        errorDiv.classList.remove('hidden');
+        return;
+      }
+
+      // Validate password
+      if (!password) {
+        errorDiv.textContent = 'Password is required';
+        errorDiv.classList.remove('hidden');
+        return;
+      }
+      if (password.length < 6) {
+        errorDiv.textContent = 'Password must be at least 6 characters';
+        errorDiv.classList.remove('hidden');
+        return;
+      }
+
+      if (gameIds.length > 15) {
+        errorDiv.textContent = 'Maximum 15 games allowed per account';
+        errorDiv.classList.remove('hidden');
+        return;
+      }
+
+      try {
+        const response = await fetch('/api/accounts', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+          },
+          body: JSON.stringify({ username, password, games: gameIds }),
+        });
+
+        if (!response.ok) {
+          const data = await response.json();
+          errorDiv.textContent = data.error || 'Failed to add account';
+          errorDiv.classList.remove('hidden');
+          return;
+        }
+
+        const data = await response.json();
+
+        showToast(`Account ${username} added successfully`, 'success', 3000);
+        closeAddAccountModal();
+        loadAccounts();
+      } catch (error) {
+        console.error('Add account error:', error);
+        errorDiv.textContent = 'An error occurred. Please try again.';
+        errorDiv.classList.remove('hidden');
+      }
+    });
+
+    document.getElementById('edit-games-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const gameIds = Array.from(selectedGames.keys());
+      const errorDiv = document.getElementById('edit-games-error');
+
+      if (gameIds.length === 0) {
+        errorDiv.textContent = 'Please select at least one game';
+        errorDiv.classList.remove('hidden');
+        return;
+      }
+
+      if (gameIds.length > 15) {
+        errorDiv.textContent = 'Maximum 15 games allowed per account';
+        errorDiv.classList.remove('hidden');
+        return;
+      }
+
+      try {
+        const response = await fetch(`/api/accounts/${currentEditingAccount}/games`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+          },
+          body: JSON.stringify({ games: gameIds }),
+        });
+
+        if (!response.ok) {
+          const data = await response.json();
+          errorDiv.textContent = data.error || 'Failed to update games';
+          errorDiv.classList.remove('hidden');
+          return;
+        }
+
+        showToast('Games updated successfully', 'success', 3000);
+        closeEditGamesModal();
+        loadAccounts();
+      } catch (error) {
+        console.error('Edit games error:', error);
+        errorDiv.textContent = 'An error occurred. Please try again.';
+        errorDiv.classList.remove('hidden');
+      }
+    });
+
+    async function deleteAccount(username) {
+      if (!confirm(`Are you sure you want to delete account "${username}"?`)) return;
+
+      try {
+        const response = await fetch(`/api/accounts/${username}`, {
+          method: 'DELETE',
+          headers: { 'Authorization': `Bearer ${token}` },
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to delete account');
+        }
+
+        showToast(`${username} deleted successfully`, 'success', 3000);
+        loadAccounts();
+      } catch (error) {
+        console.error('Delete account error:', error);
+        showToast('Error deleting account', 'error', 4000);
+      }
+    }
+
+    async function startAccount(username) {
+      try {
+        const response = await fetch(`/api/accounts/${username}/start`, {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${token}` },
+        });
+
+        let errorMsg = 'Failed to start account';
+        try {
+          const data = await response.json();
+          errorMsg = data.error || errorMsg;
+        } catch (e) {
+          // Response might not be JSON
+        }
+
+        if (!response.ok) {
+          showToast(errorMsg, 'error', 4000);
+          return;
+        }
+
+        showToast(`${username} started successfully`, 'success', 3000);
+        loadAccounts();
+      } catch (error) {
+        console.error('Start account error:', error);
+        showToast('Error starting account: ' + error.message, 'error', 4000);
+      }
+    }
+
+    function showSteam2FAModal(username) {
+      currentEditingAccount = username;
+      document.getElementById('steam-2fa-account-name').textContent = username;
+      document.getElementById('steam-2fa-code').value = '';
+      document.getElementById('steam-2fa-error').classList.add('hidden');
+      document.getElementById('steam-2fa-modal').classList.remove('hidden');
+      document.getElementById('steam-2fa-code').focus();
+
+      document.body.style.overflow = 'hidden';
+    }
+
+    async function stopAccount(username) {
+      try {
+        const response = await fetch(`/api/accounts/${username}/stop`, {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${token}` },
+        });
+
+        if (!response.ok) {
+          const data = await response.json();
+          showToast(data.error || 'Failed to stop account', 'error', 4000);
+          return;
+        }
+
+        showToast(`${username} stopped successfully`, 'success', 3000);
+        loadAccounts();
+      } catch (error) {
+        console.error('Stop account error:', error);
+        showToast('Error stopping account', 'error', 4000);
+      }
+    }
+
+    async function openLogsModal(username) {
+      currentEditingAccount = username;
+      document.getElementById('logs-modal').classList.remove('hidden');
+
+      try {
+        const response = await fetch(`/api/accounts/${username}/logs`, {
+          headers: { 'Authorization': `Bearer ${token}` },
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to load logs');
+        }
+
+        const data = await response.json();
+
+        const logsList = document.getElementById('logs-list');
+        if (data.logs.length === 0) {
+          logsList.innerHTML = '<p class="text-white/50 text-center py-8">No logs yet</p>';
+          return;
+        }
+
+        logsList.innerHTML = data.logs.map(log => `
+          <div class="bg-white/5 border border-white/10 rounded-lg p-4">
+            <div class="flex justify-between items-start mb-2">
+              <span class="px-2 py-1 rounded text-xs font-semibold ${getLogTypeColor(log.type)}">${log.type}</span>
+              <span class="text-white/50 text-xs">${new Date(log.createdAt).toLocaleString()}</span>
+            </div>
+            <p class="text-white/80">${log.message}</p>
+          </div>
+        `).join('');
+      } catch (error) {
+        console.error('Load logs error:', error);
+        document.getElementById('logs-list').innerHTML = '<p class="text-red-400 text-center py-8">Failed to load logs</p>';
+      }
+    }
+
+    function closeLogsModal() {
+      document.getElementById('logs-modal').classList.add('hidden');
+    }
+
+    function close2FAModal() {
+      document.getElementById('steam-2fa-modal').classList.add('hidden');
+      document.getElementById('steam-2fa-form').reset();
+      document.getElementById('steam-2fa-error').classList.add('hidden');
+      document.body.style.overflow = '';
+    }
+
+    function getLogTypeColor(type) {
+      const colors = {
+        'LOGIN': 'bg-green-500/20 text-green-400',
+        'LOGOUT': 'bg-blue-500/20 text-blue-400',
+        'ERROR': 'bg-red-500/20 text-red-400',
+        'STEAM_GUARD': 'bg-yellow-500/20 text-yellow-400',
+        'VAC_BAN': 'bg-red-600/20 text-red-300',
+        'STATUS_CHANGE': 'bg-purple-500/20 text-purple-400',
+        'GAME_UPDATE': 'bg-cyan-500/20 text-cyan-400',
+        'INFO': 'bg-white/10 text-white/70',
+      };
+      return colors[type] || colors['INFO'];
+    }
+
+    async function restartAccount(username) {
+      try {
+        const response = await fetch(`/api/accounts/${username}/restart`, {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${token}` },
+        });
+
+        if (!response.ok) {
+          const data = await response.json();
+          showToast(data.error || 'Failed to restart account', 'error', 4000);
+          return;
+        }
+
+        const data = await response.json();
+
+        showToast(`${username} restarting...`, 'info', 3000);
+        loadAccounts();
+      } catch (error) {
+        console.error('Restart account error:', error);
+        showToast('Error restarting account', 'error', 4000);
+      }
+    }
+
+    let settingsAccountUsername = null;
+
+    async function openSettingsModal(username) {
+      settingsAccountUsername = username;
+
+      try {
+        const response = await fetch(`/api/accounts/${username}/settings`, {
+          headers: { 'Authorization': `Bearer ${token}` },
+        });
+
+        if (!response.ok) {
+          showToast('Failed to load settings', 'error', 4000);
+          return;
+        }
+
+        const settings = await response.json();
+
+        document.getElementById('auto-restart-check').checked = settings.autoRestartEnabled || false;
+        document.getElementById('offline-mode-check').checked = settings.offlineModeEnabled || false;
+        document.getElementById('game-rotation-check').checked = settings.gameRotationEnabled || false;
+        document.getElementById('rotation-interval').value = settings.gameRotationInterval || 3600000;
+        document.getElementById('schedule-start').value = settings.scheduledStartTime || '';
+        document.getElementById('schedule-stop').value = settings.scheduledStopTime || '';
+        document.getElementById('proxy-url').value = settings.proxyUrl || '';
+      } catch (error) {
+        console.error('Load settings error:', error);
+        showToast('Error loading settings', 'error', 4000);
+      }
+
+      document.getElementById('account-settings-modal').classList.remove('hidden');
+    }
+
+    function closeSettingsModal() {
+      document.getElementById('account-settings-modal').classList.add('hidden');
+      document.getElementById('account-settings-form').reset();
+      settingsAccountUsername = null;
+    }
+
+    document.getElementById('account-settings-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const username = settingsAccountUsername;
+      const errorDiv = document.getElementById('settings-error');
+
+      if (!username) {
+        errorDiv.textContent = 'No account selected';
+        errorDiv.classList.remove('hidden');
+        return;
+      }
+
+      try {
+        const autoRestart = document.getElementById('auto-restart-check').checked;
+        const offlineMode = document.getElementById('offline-mode-check').checked;
+        const gameRotation = document.getElementById('game-rotation-check').checked;
+        const rotationInterval = parseInt(document.getElementById('rotation-interval').value) || 3600000;
+        const scheduleStart = document.getElementById('schedule-start').value;
+        const scheduleStop = document.getElementById('schedule-stop').value;
+        const proxyUrl = document.getElementById('proxy-url').value;
+
+        let successCount = 0;
+        let errors = [];
+
+        if (autoRestart !== undefined) {
+          const resp = await fetch(`/api/accounts/${username}/auto-restart`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+            body: JSON.stringify({ enabled: autoRestart }),
+          });
+          if (resp.ok) successCount++;
+          else errors.push('Auto-restart');
+        }
+
+        if (offlineMode !== undefined) {
+          const resp = await fetch(`/api/accounts/${username}/offline-mode`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+            body: JSON.stringify({ enabled: offlineMode }),
+          });
+          if (resp.ok) successCount++;
+          else errors.push('Offline mode');
+        }
+
+        if (gameRotation !== undefined) {
+          const resp = await fetch(`/api/accounts/${username}/rotate-games`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+            body: JSON.stringify({ interval: rotationInterval }),
+          });
+          if (resp.ok) successCount++;
+          else errors.push('Game rotation');
+        }
+
+        if (scheduleStart || scheduleStop) {
+          const resp = await fetch(`/api/accounts/${username}/schedule`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+            body: JSON.stringify({ startTime: scheduleStart, stopTime: scheduleStop }),
+          });
+          if (resp.ok) successCount++;
+          else errors.push('Schedule');
+        }
+
+        if (proxyUrl) {
+          const resp = await fetch(`/api/accounts/${username}/proxy`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+            body: JSON.stringify({ proxyUrl }),
+          });
+          if (resp.ok) successCount++;
+          else errors.push('Proxy');
+        }
+
+        if (errors.length > 0) {
+          errorDiv.textContent = `Failed to update: ${errors.join(', ')}`;
+          errorDiv.classList.remove('hidden');
+        } else {
+          closeSettingsModal();
+          loadAccounts();
+        }
+      } catch (error) {
+        console.error('Settings save error:', error);
+        errorDiv.textContent = 'An error occurred. Please try again.';
+        errorDiv.classList.remove('hidden');
+      }
+    });
 
 
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && !document.getElementById('steam-2fa-modal').classList.contains('hidden')) {
+        close2FAModal();
+      }
+    });
 
+    function logout() {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      window.location.href = '/login';
+    }
 
-function showStatFloat(container, text) {
-  const floatEl = document.createElement('div');
-  floatEl.className = 'stat-float';
-  floatEl.textContent = text;
-
-  container.style.position = 'relative';
-  container.appendChild(floatEl);
-
-  setTimeout(() => {
-    floatEl.remove();
-  }, 1000);
-}
-
-
-
-
-socket.emit('requestStats');
-// setInterval(() => {
-//   socket.emit('requestStats');
-// }, 20000); // every 20 seconds
-
-socket.on('stats', ({ totalUsers, totalAccounts, boosting }) => {
-  totalUsers = Number(totalUsers) || 0;
-  totalAccounts = Number(totalAccounts) || 0;
-  boosting = Number(boosting) || 0;
-
-  animateStat('stat-users', totalUsers);
-  animateStat('stat-accounts', totalAccounts);
-  animateStat('stat-boosting', boosting);
-
-  const avg = totalUsers > 0 ? totalAccounts / totalUsers : 0;
-  animateStat('stat-avg', avg, 1);
-});
-
-
-    
+    loadAccounts();
   </script>
 </body>
 </html>

@@ -1,16 +1,14 @@
 module.exports = {
   apps: [
     {
-      name: 'steamhourboost-discord',
-      script: './src/discord-bot/index.js',
+      name: 'hour-booster-server',
+      script: './server.js',
       watch: true,
       ignore_watch: [
         'node_modules',
         '.git',
-        'accounts-data/*',
         'logs/*',
-        'src/db/*',
-        'src/prisma/migrations',
+        'data/*',
       ],
       autorestart: true,
       time: true,

@@ -269,4 +269,25 @@
   display: flex !important;
 }
 
+.game-card {
+  position: relative;
+  overflow: hidden;
+}
 
+.game-card img {
+  transition: transform 0.3s ease;
+}
+
+.game-card:hover img {
+  transform: scale(1.05);
+}
+
+.account-card {
+  transition: all 0.3s ease;
+  animation: fadeIn 0.3s ease-out forwards;
+}
+
+.account-card:hover {
+  border-color: rgba(220, 38, 38, 0.3);
+  box-shadow: 0 8px 16px rgba(220, 38, 38, 0.1);
+}

@@ -25,36 +25,30 @@ const STEAM_BOT_STATUS = {
 const MAX_STEAM_USERNAME_LENGTH = 64;
 const MAX_STEAM_PASSWORD_LENGTH = 64;
 
-const LICENSE_TYPE = {
+const USER_TIERS = {
   FREE: {
-    id: 'L001',
+    id: 'free',
     name: 'Free',
-    maxSteamAccounts: 1,
-    maxSteamGames: 1,
+    maxSteamAccounts: 5,
+    maxSteamGames: 15,
   },
   PREMIUM: {
-    id: 'L002',
+    id: 'premium',
     name: 'Premium',
-    maxSteamAccounts: 5,
-    maxSteamGames: 10,
+    maxSteamAccounts: 20,
+    maxSteamGames: 100,
   },
   ULTRA: {
-    id: 'L003',
-    name: 'ULTRA',
-    maxSteamAccounts: 20,
-    maxSteamGames: 30,
+    id: 'ultra',
+    name: 'Ultra',
+    maxSteamAccounts: 50,
+    maxSteamGames: 300,
   },
-  FREE2: {
-    id: 'L004',
-    name: 'Free Extended',
-    maxSteamAccounts: 5,
-    maxSteamGames: 100,
-  }
 };
 
 module.exports = {
   STEAM_BOT_STATUS,
-  LICENSE_TYPE,
+  USER_TIERS,
   MAX_STEAM_USERNAME_LENGTH,
   MAX_STEAM_PASSWORD_LENGTH,
 };

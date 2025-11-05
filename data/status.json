@@ -1,31 +1,12 @@
 {
-  "updates": [
-    {
-      "time": "2025-07-01T17:51:45.297Z",
-      "title": "Discord Bot Issue",
-      "type": "info",
-      "message": "We've discovered a new bug where newly configured game lists won't save, we're monitoring this issue close.",
-      "severity": "low",
-      "affects": [
-        "Discord Bot"
-      ],
-      "resolved": true,
-      "timeline": [
-        {
-          "time": "2025-07-04T20:10:09.432Z",
-          "message": "This issue has been solved!",
-          "subtype": "Update"
-        }
-      ]
-    }
-  ],
-  "uptime": "12d 4h 22m",
-  "lastCheck": "2025-06-28T18:01:00Z",
+  "updates": [],
+  "uptime": "0d 0h 0m",
+  "lastCheck": "2025-01-01T00:00:00Z",
   "systemInfo": {
-    "cpuUsage": "12%",
-    "ramUsage": "68%",
-    "diskUsage": "59%",
-    "uptime": "12 days, 4 hours",
-    "host": "raspberrypi.local"
+    "cpuUsage": "0%",
+    "ramUsage": "0%",
+    "diskUsage": "0%",
+    "uptime": "0 days, 0 hours",
+    "host": "localhost"
   }
 }

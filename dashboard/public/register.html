@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Hour Booster | Login</title>
+  <title>Hour Booster | Register</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <meta name="theme-color" content="#dc2626">
   <link rel="stylesheet" href="css/styles.css">
@@ -21,9 +21,9 @@
       <h2 class="font-bold bg-gradient-to-r from-red-500 to-red-700 text-transparent bg-clip-text text-center text-3xl mb-2">
         Hour Booster
       </h2>
-      <p class="text-white/60 text-center text-sm mb-8">Sign in to your account</p>
+      <p class="text-white/60 text-center text-sm mb-8">Create your free account</p>
 
-      <form id="login-form" class="space-y-4">
+      <form id="register-form" class="space-y-4">
         <div>
           <label for="email" class="block text-white/70 mb-2 text-sm font-medium">Email</label>
           <input id="email" type="email" name="email" required autofocus
@@ -32,8 +32,23 @@
         </div>
 
         <div>
+          <label for="username" class="block text-white/70 mb-2 text-sm font-medium">Username</label>
+          <input id="username" type="text" name="username" required
+            class="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition"
+            placeholder="yourname" minlength="3">
+        </div>
+
+        <div>
           <label for="password" class="block text-white/70 mb-2 text-sm font-medium">Password</label>
           <input id="password" type="password" name="password" required
+            class="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition"
+            placeholder="••••••••" minlength="8">
+          <p class="text-white/50 text-xs mt-1">At least 8 characters</p>
+        </div>
+
+        <div>
+          <label for="confirmPassword" class="block text-white/70 mb-2 text-sm font-medium">Confirm Password</label>
+          <input id="confirmPassword" type="password" name="confirmPassword" required
             class="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition"
             placeholder="••••••••">
         </div>
@@ -41,44 +56,38 @@
         <div id="error-message" class="hidden bg-red-500/20 border border-red-500/40 text-red-300 text-sm p-3 rounded-lg"></div>
 
         <button type="submit" class="w-full py-3 font-semibold rounded-lg bg-gradient-to-r from-red-500 to-red-700 hover:from-red-600 hover:to-red-800 transition-all duration-300 text-white">
-          Sign In
+          Create Account
         </button>
       </form>
 
       <div class="mt-6 text-center text-white/70 text-sm">
-        Don't have an account?
-        <a href="/register" class="text-red-500 hover:text-red-400 font-semibold transition">Create one</a>
+        Already have an account?
+        <a href="/login" class="text-red-500 hover:text-red-400 font-semibold transition">Sign in</a>
       </div>
     </div>
   </div>
 
   <script>
-    document.getElementById('login-form').addEventListener('submit', async (e) => {
+    document.getElementById('register-form').addEventListener('submit', async (e) => {
       e.preventDefault();
       const email = document.getElementById('email').value;
+      const username = document.getElementById('username').value;
       const password = document.getElementById('password').value;
+      const confirmPassword = document.getElementById('confirmPassword').value;
       const errorDiv = document.getElementById('error-message');
 
       try {
-        const response = await fetch('/api/auth/login', {
+        const response = await fetch('/api/auth/register', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email, password }),
+          body: JSON.stringify({ email, username, password, confirmPassword }),
         });
-
-        if (!response.ok) {
-          const data = await response.json();
-          errorDiv.textContent = data.error || 'Login failed';
-          errorDiv.classList.remove('hidden');
-          return;
-        }
 
         const data = await response.json();
 
-        if (!data.token || !data.user) {
-          errorDiv.textContent = 'Invalid response from server';
+        if (!response.ok) {
+          errorDiv.textContent = data.error || 'Registration failed';
           errorDiv.classList.remove('hidden');
-          console.error('Invalid login response:', data);
           return;
         }
 
@@ -88,7 +97,7 @@
       } catch (error) {
         errorDiv.textContent = 'An error occurred. Please try again.';
         errorDiv.classList.remove('hidden');
-        console.error('Login error:', error);
+        console.error('Registration error:', error);
       }
     });
   </script>

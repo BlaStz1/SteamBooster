@@ -35,27 +35,37 @@ function encrypt(messageText) {
 }
 
 function decrypt(cipherText) {
-  if (!cipherText) {
+  if (!cipherText || typeof cipherText !== 'string' || cipherText.trim().length === 0) {
     return '';
   }
 
-  const iv = Buffer.from(cipherText.slice(0, ALGORITHM.IV_BYTE_LEN * 2), 'hex');
-  const encryptedMessage = Buffer.from(cipherText.slice(ALGORITHM.IV_BYTE_LEN * 2, -ALGORITHM.AUTH_TAG_BYTE_LEN * 2), 'hex');
-  const authTag = Buffer.from(cipherText.slice(-ALGORITHM.AUTH_TAG_BYTE_LEN * 2), 'hex');
-  const decipher = createDecipheriv(ALGORITHM.BLOCK_CIPHER, key, iv, {
-    'authTagLength': ALGORITHM.AUTH_TAG_BYTE_LEN,
-  });
+  try {
+    const iv = Buffer.from(cipherText.slice(0, ALGORITHM.IV_BYTE_LEN * 2), 'hex');
+    if (iv.length !== ALGORITHM.IV_BYTE_LEN) {
+      throw new Error('Invalid IV length');
+    }
 
-  decipher.setAuthTag(authTag);
-  const decryptedMessage = Buffer.concat([decipher.update(encryptedMessage), decipher.final()]);
-  const messageText = decryptedMessage.toString('utf-8');
+    const encryptedMessage = Buffer.from(cipherText.slice(ALGORITHM.IV_BYTE_LEN * 2, -ALGORITHM.AUTH_TAG_BYTE_LEN * 2), 'hex');
+    const authTag = Buffer.from(cipherText.slice(-ALGORITHM.AUTH_TAG_BYTE_LEN * 2), 'hex');
 
-  iv.fill(0);
-  encryptedMessage.fill(0);
-  decryptedMessage.fill(0);
-  authTag.fill(0);
+    const decipher = createDecipheriv(ALGORITHM.BLOCK_CIPHER, key, iv, {
+      'authTagLength': ALGORITHM.AUTH_TAG_BYTE_LEN,
+    });
 
-  return messageText;
+    decipher.setAuthTag(authTag);
+    const decryptedMessage = Buffer.concat([decipher.update(encryptedMessage), decipher.final()]);
+    const messageText = decryptedMessage.toString('utf-8');
+
+    iv.fill(0);
+    encryptedMessage.fill(0);
+    decryptedMessage.fill(0);
+    authTag.fill(0);
+
+    return messageText;
+  } catch (error) {
+    console.error('Decryption error:', error.message);
+    return '';
+  }
 }
 
 module.exports = { encrypt, decrypt };
